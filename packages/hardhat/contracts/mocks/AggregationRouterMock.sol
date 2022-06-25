@@ -20,7 +20,11 @@ contract AggregationRouterMock {
     }
 
     // fakes a swap, mints the outToken to the receiver
-    function swap(bytes calldata _data)
+    function swap(
+        IAggregationExecutor caller,
+        SwapDescription calldata desc,
+        bytes calldata data
+    )
         public
         returns (
             uint256 returnAmount,
@@ -35,7 +39,7 @@ contract AggregationRouterMock {
             IAggregationRouterV4.SwapDescription memory _swapDescription,
             bytes memory _tradeData
         ) = abi.decode(
-                _data[4:],
+                data,
                 (
                     IAggregationExecutor,
                     IAggregationRouterV4.SwapDescription,
