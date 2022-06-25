@@ -54,7 +54,6 @@ contract StreamSwapDistribute is
         _uniRouter = uniRouter;
         _router = router;
 
-        console.log('herefirst');
         // approve router to transfer the underlying `inToken` on behalf of this contract
         /* IERC20(inToken.getUnderlyingToken()).approve(
             address(router),
@@ -68,14 +67,11 @@ contract StreamSwapDistribute is
             type(uint256).max
         );
 
-        console.log('here1');
-
         // approve router to transfer the underlying `inToken` on behalf of this contract
         IERC20(inToken.getUnderlyingToken()).approve(
             address(uniRouter),
             type(uint256).max
         );
-        console.log('here2');
 
         // Update Chainlink
         interval = updateInterval;
