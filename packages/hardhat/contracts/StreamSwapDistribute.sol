@@ -16,7 +16,7 @@ contract StreamSwapDistribute is
     KeeperCompatibleInterface
 {
     /// @dev 1inch V4 Router for swapping tokens
-    // IUniswapV2Router02 internal immutable _router;
+    IUniswapV2Router02 internal immutable _uniRouter;
     IAggregationRouterV4 internal immutable _router;
     uint256 private constant _SHOULD_CLAIM_FLAG = 0x04;
     // TODO: modify this
@@ -45,9 +45,11 @@ contract StreamSwapDistribute is
         IInstantDistributionAgreementV1 ida,
         ISuperToken inToken,
         ISuperToken outToken,
+        IUniswapV2Router02 uniRouter,
         IAggregationRouterV4 router,
         uint256 updateInterval
     ) StreamInDistributeOut(host, cfa, ida, inToken, outToken) {
+        _uniRouter = uniRouter;
         _router = router;
 
         // approve router to transfer the underlying `inToken` on behalf of this contract
@@ -59,6 +61,12 @@ contract StreamSwapDistribute is
         // approve `outToken` to upgrade the underlying `outToken` on behalf of this contract.
         IERC20(outToken.getUnderlyingToken()).approve(
             address(outToken),
+            type(uint256).max
+        );
+
+        // approve router to transfer the underlying `inToken` on behalf of this contract
+        IERC20(inToken.getUnderlyingToken()).approve(
+            address(uniRouter),
             type(uint256).max
         );
 
@@ -78,6 +86,8 @@ contract StreamSwapDistribute is
         uint256 _receivedAmount;
         address _receiver = address(this);
 
+        bool useUni = true;
+
         // Downgrade the full balance of the `_inToken`.
         _inToken.downgrade(_inToken.balanceOf(address(this)));
 
@@ -87,56 +97,74 @@ contract StreamSwapDistribute is
         // Get the amount of `_inToken`s to swap
         uint256 amountIn = IERC20(inTokenUnderlying).balanceOf(address(this));
 
-        SwapDescription memory swapData = SwapDescription({
-            srcToken: IERC20(_inToken.getUnderlyingToken()),
-            dstToken: IERC20(_outToken.getUnderlyingToken()),
-            srcReceiver: payable(msg.sender),
-            dstReceiver: payable(address(this)),
-            amount: amountIn,
-            minReturnAmount: 0,
-            flags: 0x04,
-            permit: ""
-        });
+        if (useUni) {
+            // Create the `path` of swaps for the Uniswap Router.
+            address[] memory path = new address[](2);
+            path[0] = inTokenUnderlying;
+            path[1] = _outToken.getUnderlyingToken();
 
-        AggregationExecutorMock aggExec = new AggregationExecutorMock();
+            // Swap the full balance of underlying `_inToken` for the underlying `_outToken`.
+            // Set the deadline for 1 minute into the future.
+            _uniRouter.swapExactTokensForTokens(
+                amountIn,
+                0,
+                path,
+                address(this),
+                type(uint256).max
+            );
+        } else {
+            // use 1inch
+            SwapDescription memory swapData = SwapDescription({
+                srcToken: IERC20(_inToken.getUnderlyingToken()),
+                dstToken: IERC20(_outToken.getUnderlyingToken()),
+                srcReceiver: payable(msg.sender),
+                dstReceiver: payable(address(this)),
+                amount: amountIn,
+                minReturnAmount: 0,
+                flags: 0x04,
+                permit: ""
+            });
 
-        bytes memory _data = abi.encode(
-            IAggregationExecutor(aggExec),
-            swapData,
-            ""
-        );
+            AggregationExecutorMock aggExec = new AggregationExecutorMock();
 
-        // Get swap params
-        (
-            IAggregationExecutor _caller,
-            IAggregationRouterV4.SwapDescription memory _swapDescription,
-            bytes memory _tradeData
-        ) = abi.decode(
-                _data,
-                (
-                    IAggregationExecutor,
-                    IAggregationRouterV4.SwapDescription,
-                    bytes
-                )
+            bytes memory _data = abi.encode(
+                IAggregationExecutor(aggExec),
+                swapData,
+                ""
             );
 
-        // Check for incorrect swap information
-        if (
-            _swapDescription.dstReceiver != _receiver ||
-            address(_swapDescription.srcToken) !=
-            address(_inToken.getUnderlyingToken()) ||
-            address(_swapDescription.dstToken) !=
-            address(_outToken.getUnderlyingToken()) ||
-            _swapDescription.amount != amountIn ||
-            _swapDescription.flags != _SHOULD_CLAIM_FLAG
-        ) revert CommonErrors.IncorrectSwapInformation();
+            // Get swap params
+            (
+                IAggregationExecutor _caller,
+                IAggregationRouterV4.SwapDescription memory _swapDescription,
+                bytes memory _tradeData
+            ) = abi.decode(
+                    _data,
+                    (
+                        IAggregationExecutor,
+                        IAggregationRouterV4.SwapDescription,
+                        bytes
+                    )
+                );
 
-        // Conduct swap
-        (_receivedAmount, , ) = _router.swap(
-            _caller,
-            _swapDescription,
-            _tradeData
-        );
+            // Check for incorrect swap information
+            if (
+                _swapDescription.dstReceiver != _receiver ||
+                address(_swapDescription.srcToken) !=
+                address(_inToken.getUnderlyingToken()) ||
+                address(_swapDescription.dstToken) !=
+                address(_outToken.getUnderlyingToken()) ||
+                _swapDescription.amount != amountIn ||
+                _swapDescription.flags != _SHOULD_CLAIM_FLAG
+            ) revert CommonErrors.IncorrectSwapInformation();
+
+            // Conduct swap
+            (_receivedAmount, , ) = _router.swap(
+                _caller,
+                _swapDescription,
+                _tradeData
+            );
+        }
 
         // Get the full balance of the underlying `_outToken`.
         // Implicitly return the `upgrade`d amount by the end of the function.

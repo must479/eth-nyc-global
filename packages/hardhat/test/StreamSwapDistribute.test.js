@@ -79,6 +79,15 @@ beforeEach(async function () {
     await inUnderlyingToken.connect(bob).approve(inToken.address, ten);
     await inToken.connect(bob).upgrade(ten);
 
+    // Uni router
+    const uniRouterFactory = await ethers.getContractFactory(
+        "UniswapRouterMock",
+        admin
+    );
+
+    uniRouterMock = await uniRouterFactory.deploy();
+
+    // 1inch router
     const routerFactory = await ethers.getContractFactory(
         "AggregationRouterMock",
         admin
@@ -97,6 +106,7 @@ beforeEach(async function () {
         sf.settings.config.idaV1Address,
         inToken.address,
         outToken.address,
+        uniRouterMock.address,
         routerMock.address,
         1000
     );
