@@ -46,7 +46,7 @@ async function main() {
   var superTokenInAddresses = {
     'polygon': '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619', // WETH
     'optimism': '​​0x4ac8bd1bdae47beef2d1c6aa62229509b962aa0d', // ETHX,
-    'rinkeby': '0xa623b2DD931C5162b7a0B25852f4024Db48bb1A0' // ETHX
+    'rinkeby': '0x0F1D7C55A2B133E000eA10EeC03c774e0d6796e8' // USDCx
   }
 
   var superTokenOutAddresses = {
