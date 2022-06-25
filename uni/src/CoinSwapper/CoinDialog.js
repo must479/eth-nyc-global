@@ -20,11 +20,11 @@ import * as COLORS from "@material-ui/core/colors";
 const styles = (theme) => ({
   dialogContainer: {
     borderRadius: theme.spacing(2),
-    backgroundColor:"#FFFFFF",
+    backgroundColor: "#FFFFFF",
   },
   dTitle: {
     borderRadius: theme.spacing(2),
-    backgroundColor:"#FFFFFF",
+    backgroundColor: "#FFFFFF",
   },
   titleSection: {
     padding: theme.spacing(2),
@@ -136,7 +136,9 @@ export default function CoinDialog(props) {
       maxWidth="sm"
       classes={{ paper: classes.dialogContainer }}
     >
-      <DialogTitle className="dTitle" onClose={() => exit(undefined)}>Select Coin</DialogTitle>
+      <DialogTitle className="dTitle" onClose={() => exit(undefined)}>
+        Select Coin
+      </DialogTitle>
 
       <hr className={classes.hr} />
 

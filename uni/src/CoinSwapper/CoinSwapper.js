@@ -35,8 +35,8 @@ const styles = (theme) => ({
     borderRadius: theme.spacing(2),
     padding: theme.spacing(1),
     paddingBottom: theme.spacing(3),
-    backgroundColor: '#D0D5E2',
-    fontFamily: 'sans-serif',
+    backgroundColor: "#D0D5E2",
+    fontFamily: "sans-serif",
   },
   switchButton: {
     zIndex: 1,
@@ -66,32 +66,32 @@ const styles = (theme) => ({
     marginTop: "285px",
   },
   timevar1: {
-    marginTop: '15px',
+    marginTop: "15px",
     backgroundColor: "#FFFFFF",
     padding: "10px",
     marginRight: "5px",
     borderRadius: theme.spacing(2),
-    height: '70px',
-    border: '0px',
+    height: "70px",
+    border: "0px",
     width: "48.5%",
-    shadowBox: 'None',
-    fontFamily: 'sans-serif',
+    shadowBox: "None",
+    fontFamily: "sans-serif",
   },
   timevar2: {
-    marginTop: '15px',
+    marginTop: "15px",
     backgroundColor: "#FFFFFF",
     padding: "10px",
     marginLeft: "5px",
     borderRadius: theme.spacing(2),
-    height: '70px',
-    border: '0px',
+    height: "70px",
+    border: "0px",
     width: "48.5%",
-    shadowBox: 'None',
-    fontFamily: 'sans-serif',
+    shadowBox: "None",
+    fontFamily: "sans-serif",
   },
-  coinSelector:{
+  coinSelector: {
     backgroundColor: "#FFFFFF",
-  }
+  },
 });
 
 const useStyles = makeStyles(styles);
@@ -158,7 +158,6 @@ function CoinSwapper(props) {
 
   // Determines whether the button should be enabled or not
   const isButtonEnabled = () => {
-
     // If both coins have been selected, and a valid float has been entered which is less than the user's balance, then return true
     const parsedInput1 = parseFloat(field1Value);
     const parsedInput2 = parseFloat(field2Value);
@@ -184,7 +183,14 @@ function CoinSwapper(props) {
     // We only update the values if the user provides a token
     else if (address) {
       // Getting some token data is async, so we need to wait for the data to return, hence the promise
-      getBalanceAndSymbol(props.network.account, address, props.network.provider, props.network.signer, props.network.weth.address, props.network.coins).then((data) => {
+      getBalanceAndSymbol(
+        props.network.account,
+        address,
+        props.network.provider,
+        props.network.signer,
+        props.network.weth.address,
+        props.network.coins
+      ).then((data) => {
         setCoin1({
           address: address,
           symbol: data.symbol,
@@ -206,7 +212,14 @@ function CoinSwapper(props) {
     // We only update the values if the user provides a token
     else if (address) {
       // Getting some token data is async, so we need to wait for the data to return, hence the promise
-      getBalanceAndSymbol(props.network.account, address, props.network.provider, props.network.signer, props.network.weth.address, props.network.coins).then((data) => {
+      getBalanceAndSymbol(
+        props.network.account,
+        address,
+        props.network.provider,
+        props.network.signer,
+        props.network.weth.address,
+        props.network.coins
+      ).then((data) => {
         setCoin2({
           address: address,
           symbol: data.symbol,
@@ -255,12 +268,12 @@ function CoinSwapper(props) {
   // This means that when the user selects a different coin to convert between, or the coins are swapped,
   // the new reserves will be calculated.
 
-  function getTimeHorizon(event: React.ChangeEvent<HTMLInputElement>) {
+  function getTimeHorizon(event) {
     event.preventDefault();
     console.log(event.target.value);
   }
 
-  function getFrequency(event: React.ChangeEvent<HTMLInputElement>) {
+  function getFrequency(event) {
     event.preventDefault();
     console.log(event.target.value);
   }
@@ -271,11 +284,22 @@ function CoinSwapper(props) {
     );
 
     if (coin1.address && coin2.address) {
-      getReserves(coin1.address, coin2.address, props.network.factory, props.network.signer, props.network.account).then(
-        (data) => setReserves(data)
-      );
+      getReserves(
+        coin1.address,
+        coin2.address,
+        props.network.factory,
+        props.network.signer,
+        props.network.account
+      ).then((data) => setReserves(data));
     }
-  }, [coin1.address, coin2.address, props.network.account, props.network.factory, props.network.router, props.network.signer]);
+  }, [
+    coin1.address,
+    coin2.address,
+    props.network.account,
+    props.network.factory,
+    props.network.router,
+    props.network.signer,
+  ]);
 
   // This hook is called when either of the state variables `field1Value` `coin1.address` or `coin2.address` change.
   // It attempts to calculate and set the state variable `field2Value`
@@ -285,12 +309,18 @@ function CoinSwapper(props) {
     if (isNaN(parseFloat(field1Value))) {
       setField2Value("");
     } else if (parseFloat(field1Value) && coin1.address && coin2.address) {
-      getAmountOut(coin1.address, coin2.address, field1Value, props.network.router, props.network.signer).then(
-        (amount) => setField2Value(amount.toFixed(7))
-      ).catch(e => {
-        console.log(e);
-        setField2Value("NA");
-      })
+      getAmountOut(
+        coin1.address,
+        coin2.address,
+        field1Value,
+        props.network.router,
+        props.network.signer
+      )
+        .then((amount) => setField2Value(amount.toFixed(7)))
+        .catch((e) => {
+          console.log(e);
+          setField2Value("NA");
+        });
     } else {
       setField2Value("");
     }
@@ -300,7 +330,7 @@ function CoinSwapper(props) {
   // updated has changed. This allows them to see when a transaction completes by looking at the balance output.
   useEffect(() => {
     const coinTimeout = setTimeout(() => {
-      console.log('props: ', props);
+      console.log("props: ", props);
       console.log("Checking balances...");
 
       if (coin1.address && coin2.address && props.network.account) {
@@ -313,7 +343,7 @@ function CoinSwapper(props) {
         ).then((data) => setReserves(data));
       }
 
-      if (coin1.address && props.network.account &&!wrongNetworkOpen) {
+      if (coin1.address && props.network.account && !wrongNetworkOpen) {
         getBalanceAndSymbol(
           props.network.account,
           coin1.address,
@@ -321,16 +351,14 @@ function CoinSwapper(props) {
           props.network.signer,
           props.network.weth.address,
           props.network.coins
-          ).then(
-          (data) => {
-            setCoin1({
-              ...coin1,
-              balance: data.balance,
-            });
-          }
-        );
+        ).then((data) => {
+          setCoin1({
+            ...coin1,
+            balance: data.balance,
+          });
+        });
       }
-      if (coin2.address && props.network.account &&!wrongNetworkOpen) {
+      if (coin2.address && props.network.account && !wrongNetworkOpen) {
         getBalanceAndSymbol(
           props.network.account,
           coin2.address,
@@ -338,14 +366,12 @@ function CoinSwapper(props) {
           props.network.signer,
           props.network.weth.address,
           props.network.coins
-          ).then(
-          (data) => {
-            setCoin2({
-              ...coin2,
-              balance: data.balance,
-            });
-          }
-        );
+        ).then((data) => {
+          setCoin2({
+            ...coin2,
+            balance: data.balance,
+          });
+        });
       }
     }, 10000);
 
@@ -367,15 +393,16 @@ function CoinSwapper(props) {
         coins={props.network.coins}
         signer={props.network.signer}
       />
-      <WrongNetwork
-        open={wrongNetworkOpen}
-        />
+      <WrongNetwork open={wrongNetworkOpen} />
 
       {/* Coin Swapper */}
       <Container maxWidth="xs">
         <Paper className={classes.paperContainer}>
-          <Typography variant="h6" font="sans-serif" className={classes.title}>
-          </Typography>
+          <Typography
+            variant="h6"
+            font="sans-serif"
+            className={classes.title}
+          ></Typography>
 
           <Grid container direction="column" alignItems="center" spacing={2}>
             <Grid item xs={12} className={classes.fullWidth}>
@@ -400,23 +427,27 @@ function CoinSwapper(props) {
                 onClick={() => setDialog2Open(true)}
                 symbol={coin2.symbol !== undefined ? coin2.symbol : "Select"}
               />
-            <div>
-              <input className= {classes.timevar1}
-                type="text"
-                placeholder="Time horizon"
-                onChange={(e) => getTimeHorizon(e)}
-              />
-              <input className={classes.timevar2}
-                type="text"
-                placeholder="Frequency"
-                onChange={(e) => getFrequency(e)}
-              />
-            </div>
-            <hr className={classes.hr} />
+              <div>
+                <input
+                  className={classes.timevar1}
+                  type="text"
+                  placeholder="Time horizon"
+                  onChange={(e) => getTimeHorizon(e)}
+                />
+                <input
+                  className={classes.timevar2}
+                  type="text"
+                  placeholder="Frequency"
+                  onChange={(e) => getFrequency(e)}
+                />
+              </div>
+              <hr className={classes.hr} />
             </Grid>
 
             {/* Balance Display */}
-            <Typography variant="h6" fontFamily="san-serif">Your Balances</Typography>
+            <Typography variant="h6" fontFamily="san-serif">
+              Your Balances
+            </Typography>
             <Grid container direction="row" justifyContent="space-between">
               <Grid item xs={6}>
                 <Typography variant="body1" className={classes.balance}>
@@ -433,7 +464,9 @@ function CoinSwapper(props) {
             <hr className={classes.hr} />
 
             {/* Reserves Display */}
-            <Typography variant="h6" fontFamily="san-serif">Reserves</Typography>
+            <Typography variant="h6" fontFamily="san-serif">
+              Reserves
+            </Typography>
             <Grid container direction="row" justifyContent="space-between">
               <Grid item xs={6}>
                 <Typography variant="body1" className={classes.balance}>
@@ -471,8 +504,8 @@ function CoinSwapper(props) {
         alignItems="flex-end"
       >
         <p>
-        Alternative Uniswap Interface | Get AUT for use in the bakerloo testnet{" "}
-          <a href="https://faucet.bakerloo.autonity.network/">here</a>
+          Alternative Uniswap Interface | Get AUT for use in the bakerloo
+          testnet <a href="https://faucet.bakerloo.autonity.network/">here</a>
         </p>
       </Grid>
     </div>

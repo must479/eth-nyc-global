@@ -4,6 +4,7 @@ import { createTheme, ThemeProvider } from "@material-ui/core";
 import { SnackbarProvider } from "notistack";
 import ConnectWalletPage from "./Components/connectWalletPage";
 import {
+  getProvider,
   getAccount,
   getFactory,
   getRouter,
@@ -30,7 +31,7 @@ const autoReconnectDelay = 5000;
 
 const Web3Provider = (props) => {
   const [isConnected, setConnected] = useState(true);
-  let network = Object.create( {} )
+  let network = Object.create({});
   network.provider = useRef(null);
   network.signer = useRef(null);
   network.account = useRef(null);
@@ -42,8 +43,8 @@ const Web3Provider = (props) => {
   const backgroundListener = useRef(null);
   async function setupConnection() {
     try {
-      console.log('lets go!');
-      network.provider = new ethers.providers.Web3Provider(window.ethereum);
+      console.log("lets go!");
+      network.provider = await getProvider();
       network.signer = await network.provider.getSigner();
       await getAccount().then(async (result) => {
         network.account = result;
@@ -68,10 +69,7 @@ const Web3Provider = (props) => {
           });
           // Get the factory address from the router
           await network.router.factory().then((factory_address) => {
-            network.factory = getFactory(
-              factory_address,
-              network.signer
-            );
+            network.factory = getFactory(factory_address, network.signer);
           });
           setConnected(true);
         } else {
@@ -79,31 +77,30 @@ const Web3Provider = (props) => {
           setConnected(false);
         }
       });
-
     } catch (e) {
       console.log(e);
     }
   }
 
   async function createListener() {
-    return setInterval(async () => {
-      // console.log("Heartbeat");
-      try {
-        // Check the account has not changed
-        const account = await getAccount();
-        if (account != network.account) {
-          await setupConnection();
-        }
-        // const chainID = await getNetwork(network.provider);
-        // if (chainID !== network.chainID){
-        //   setConnected(false);
-        //   await setupConnection();
-        // }
-      } catch (e) {
-        setConnected(false);
-        await setupConnection();
-      }
-    }, 1000);
+    // return setInterval(async () => {
+    //   // console.log("Heartbeat");
+    //   try {
+    //     // Check the account has not changed
+    //     const account = await getAccount();
+    //     if (account != network.account) {
+    //       await setupConnection();
+    //     }
+    //     // const chainID = await getNetwork(network.provider);
+    //     // if (chainID !== network.chainID){
+    //     //   setConnected(false);
+    //     //   await setupConnection();
+    //     // }
+    //   } catch (e) {
+    //     setConnected(false);
+    //     await setupConnection();
+    //   }
+    // }, 1000);
   }
 
   useEffect(async () => {
