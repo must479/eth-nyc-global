@@ -6,6 +6,7 @@ import {IERC20} from "@uniswap/v2-periphery/contracts/interfaces/IERC20.sol";
 import {ISuperfluid, IInstantDistributionAgreementV1, IConstantFlowAgreementV1, StreamInDistributeOut, ISuperToken} from "./base/StreamInDistributeOut.sol";
 import {IAggregationExecutor} from "./interfaces/IAggregationExecutor.sol";
 import {IAggregationRouterV4} from "./interfaces/IAggregationRouterV4.sol";
+import {AggregationExecutorMock} from "./mocks/AggregationExecutorMock.sol";
 import {CommonErrors} from "./libraries/CommonErrors.sol";
 
 /// @title Contract to Stream in, Swap, then Distribute out.
@@ -16,6 +17,17 @@ contract StreamSwapDistribute is StreamInDistributeOut {
     uint256 private constant _SHOULD_CLAIM_FLAG = 0x04;
     address public immutable AGGREGATION_ROUTER_V4 =
         0xb2B99928F08539Fb21a7e605355208f681643D42;
+
+    struct SwapDescription {
+        IERC20 srcToken;
+        IERC20 dstToken;
+        address payable srcReceiver;
+        address payable dstReceiver;
+        uint256 amount;
+        uint256 minReturnAmount;
+        uint256 flags;
+        bytes permit;
+    }
 
     constructor(
         ISuperfluid host,
@@ -50,7 +62,7 @@ contract StreamSwapDistribute is StreamInDistributeOut {
     {
         uint256 _receivedAmount;
         address _receiver = address(this);
-        bytes memory _data = abi.encode(msg.sender, address(this));
+
         // Downgrade the full balance of the `_inToken`.
         _inToken.downgrade(_inToken.balanceOf(address(this)));
 
@@ -59,6 +71,25 @@ contract StreamSwapDistribute is StreamInDistributeOut {
 
         // Get the amount of `_inToken`s to swap
         uint256 amountIn = IERC20(inTokenUnderlying).balanceOf(address(this));
+
+        SwapDescription memory swapData = SwapDescription({
+            srcToken: IERC20(_inToken.getUnderlyingToken()),
+            dstToken: IERC20(_outToken.getUnderlyingToken()),
+            srcReceiver: payable(msg.sender),
+            dstReceiver: payable(address(this)),
+            amount: amountIn,
+            minReturnAmount: 0,
+            flags: 0,
+            permit: ""
+        });
+
+        AggregationExecutorMock aggExec = new AggregationExecutorMock();
+
+        bytes memory _data = abi.encode(
+            IAggregationExecutor(aggExec),
+            swapData,
+            ""
+        );
 
         // Get swap params
         // _data[4:]
