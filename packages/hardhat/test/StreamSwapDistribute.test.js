@@ -1,5 +1,5 @@
 const { ethers } = require("hardhat");
-const { assert } = require("chai");
+const { assert, expect } = require("chai");
 const { Framework } = require("@superfluid-finance/sdk-core");
 const deploySuperfluid = require("./util/deploy-sf.js");
 const createSuperToken = require("./util/create-supertoken.js");
@@ -97,7 +97,8 @@ beforeEach(async function () {
         sf.settings.config.idaV1Address,
         inToken.address,
         outToken.address,
-        routerMock.address
+        routerMock.address,
+        1000
     );
 });
 
@@ -281,4 +282,26 @@ describe("Action operations", async () => {
             "0"
         );
     });
+});
+
+describe("Chainlink operations", async () => {
+    it("should be able to call checkUpkeep", async () => {
+        const checkData = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(""))
+        const { upkeepNeeded } = await streamSwapDistributeApp.callStatic.checkUpkeep(checkData)
+        assert.equal(upkeepNeeded, false)
+    })
+
+    it("should not be able to call perform upkeep without the time passed interval", async () => {
+        const checkData = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(""))
+        const interval = await streamSwapDistributeApp.interval()
+        await network.provider.send("evm_increaseTime", [interval.toNumber() - 1])
+        await expect(streamSwapDistributeApp.performUpkeep(checkData)).to.be.revertedWith("Time interval not met")
+    })
+
+    it("should be able to call performUpkeep after time passes", async () => {
+        const checkData = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(""))
+        const interval = await streamSwapDistributeApp.interval()
+        await network.provider.send("evm_increaseTime", [interval.toNumber() + 1])
+        await streamSwapDistributeApp.performUpkeep(checkData)
+    })
 });

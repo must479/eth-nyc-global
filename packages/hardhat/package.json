@@ -1,6 +1,7 @@
 {
     "name": "stream-in-distribute-out",
     "dependencies": {
+        "@chainlink/contracts": "^0.4.1",
         "@nomiclabs/hardhat-etherscan": "^3.1.0",
         "@openzeppelin/contracts": "^4.5.0",
         "@superfluid-finance/ethereum-contracts": "^1.2.0",

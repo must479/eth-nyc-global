@@ -8,16 +8,26 @@ import {IAggregationExecutor} from "./interfaces/IAggregationExecutor.sol";
 import {IAggregationRouterV4} from "./interfaces/IAggregationRouterV4.sol";
 import {AggregationExecutorMock} from "./mocks/AggregationExecutorMock.sol";
 import {CommonErrors} from "./libraries/CommonErrors.sol";
+import {KeeperCompatibleInterface} from "@chainlink/contracts/src/v0.8/KeeperCompatible.sol";
 
 /// @title Contract to Stream in, Swap, then Distribute out.
-contract StreamSwapDistribute is StreamInDistributeOut {
+contract StreamSwapDistribute is
+    StreamInDistributeOut,
+    KeeperCompatibleInterface
+{
     /// @dev 1inch V4 Router for swapping tokens
     // IUniswapV2Router02 internal immutable _router;
     IAggregationRouterV4 internal immutable _router;
     uint256 private constant _SHOULD_CLAIM_FLAG = 0x04;
+    // TODO: modify this
     address public immutable AGGREGATION_ROUTER_V4 =
         0xb2B99928F08539Fb21a7e605355208f681643D42;
 
+    // Chainlink vars
+    uint256 public immutable interval;
+    uint256 public lastTimeStamp;
+
+    // Swap description
     struct SwapDescription {
         IERC20 srcToken;
         IERC20 dstToken;
@@ -35,7 +45,8 @@ contract StreamSwapDistribute is StreamInDistributeOut {
         IInstantDistributionAgreementV1 ida,
         ISuperToken inToken,
         ISuperToken outToken,
-        IAggregationRouterV4 router
+        IAggregationRouterV4 router,
+        uint256 updateInterval
     ) StreamInDistributeOut(host, cfa, ida, inToken, outToken) {
         _router = router;
 
@@ -50,6 +61,10 @@ contract StreamSwapDistribute is StreamInDistributeOut {
             address(outToken),
             type(uint256).max
         );
+
+        // Update Chainlink
+        interval = updateInterval;
+        lastTimeStamp = block.timestamp;
     }
 
     /// @dev Before action callback. This swaps the `inToken` for the `outToken`, then returns the
@@ -79,7 +94,7 @@ contract StreamSwapDistribute is StreamInDistributeOut {
             dstReceiver: payable(address(this)),
             amount: amountIn,
             minReturnAmount: 0,
-            flags: 0,
+            flags: 0x04,
             permit: ""
         });
 
@@ -92,7 +107,6 @@ contract StreamSwapDistribute is StreamInDistributeOut {
         );
 
         // Get swap params
-        // _data[4:]
         (
             IAggregationExecutor _caller,
             IAggregationRouterV4.SwapDescription memory _swapDescription,
@@ -107,15 +121,15 @@ contract StreamSwapDistribute is StreamInDistributeOut {
             );
 
         // Check for incorrect swap information
-        // if (
-        //     _swapDescription.dstReceiver != _receiver ||
-        //     address(_swapDescription.srcToken) !=
-        //     address(_inToken.getUnderlyingToken()) ||
-        //     address(_swapDescription.dstToken) !=
-        //     address(_outToken.getUnderlyingToken()) ||
-        //     _swapDescription.amount != amountIn ||
-        //     _swapDescription.flags != _SHOULD_CLAIM_FLAG
-        // ) revert CommonErrors.IncorrectSwapInformation();
+        if (
+            _swapDescription.dstReceiver != _receiver ||
+            address(_swapDescription.srcToken) !=
+            address(_inToken.getUnderlyingToken()) ||
+            address(_swapDescription.dstToken) !=
+            address(_outToken.getUnderlyingToken()) ||
+            _swapDescription.amount != amountIn ||
+            _swapDescription.flags != _SHOULD_CLAIM_FLAG
+        ) revert CommonErrors.IncorrectSwapInformation();
 
         // Conduct swap
         (_receivedAmount, , ) = _router.swap(
@@ -132,5 +146,31 @@ contract StreamSwapDistribute is StreamInDistributeOut {
 
         //Upgrade the full underlying `_outToken` balance.
         _outToken.upgrade(distributionAmount);
+    }
+
+    /// @dev Checks upkeep
+    /// @param checkData Check data
+    /// @return upkeepNeeded Whether upkeep needed
+    function checkUpkeep(bytes calldata checkData)
+        public
+        view
+        override
+        returns (
+            bool upkeepNeeded,
+            bytes memory /* performData */
+        )
+    {
+        upkeepNeeded = (block.timestamp - lastTimeStamp) > interval;
+    }
+
+    /// @dev Performs upkeep
+    /// @param performData Perform data
+    function performUpkeep(
+        bytes calldata performData /* performData */
+    ) external override {
+        (bool upkeepNeeded, ) = checkUpkeep(performData);
+        require(upkeepNeeded, "Time interval not met");
+        lastTimeStamp = block.timestamp;
+        executeAction();
     }
 }
