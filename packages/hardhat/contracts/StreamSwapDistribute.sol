@@ -27,6 +27,7 @@ contract StreamSwapDistribute is
     uint256 public immutable interval;
     uint256 public lastTimeStamp;
 
+    // Swap description
     struct SwapDescription {
         IERC20 srcToken;
         IERC20 dstToken;
@@ -106,7 +107,6 @@ contract StreamSwapDistribute is
         );
 
         // Get swap params
-        // _data[4:]
         (
             IAggregationExecutor _caller,
             IAggregationRouterV4.SwapDescription memory _swapDescription,
