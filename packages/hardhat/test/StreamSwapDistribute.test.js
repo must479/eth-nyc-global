@@ -80,7 +80,7 @@ beforeEach(async function () {
     await inToken.connect(bob).upgrade(ten);
 
     const routerFactory = await ethers.getContractFactory(
-        "UniswapRouterMock",
+        "AggregationRouterMock",
         admin
     );
 

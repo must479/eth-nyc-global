@@ -97,11 +97,9 @@ abstract contract StreamInDistributeOut is SuperAppBase {
     // ACTION EXECUTION
     // //////////////////////////////////////////////////////////////
 
-    /// @notice Executes dev-defined action and distributes the out-token.
     /// @dev DO NOT override this function, override `_beforeDistribution` instead.
     function executeAction() public {
         if (!_shouldDistributeHax()) return;
-
         uint256 distributionAmount = _beforeDistribution();
 
         _idaLib.distribute(_outToken, INDEX_ID, distributionAmount);
