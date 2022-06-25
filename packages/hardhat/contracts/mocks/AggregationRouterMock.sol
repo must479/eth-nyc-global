@@ -32,29 +32,12 @@ contract AggregationRouterMock {
             uint256 gasLeft
         )
     {
-        uint256 amountIn = 1;
-        // Get swap params
-        (
-            IAggregationExecutor _caller,
-            IAggregationRouterV4.SwapDescription memory _swapDescription,
-            bytes memory _tradeData
-        ) = abi.decode(
-                data,
-                (
-                    IAggregationExecutor,
-                    IAggregationRouterV4.SwapDescription,
-                    bytes
-                )
-            );
-        ERC20Mock(address(_swapDescription.srcToken)).transferFrom(
+        ERC20Mock(address(desc.srcToken)).transferFrom(
             msg.sender,
             address(this),
-            amountIn
+            desc.amount
         );
-        ERC20Mock(address(_swapDescription.dstToken)).mint(
-            _swapDescription.dstReceiver,
-            amountIn
-        );
+        ERC20Mock(address(desc.dstToken)).mint(desc.dstReceiver, desc.amount);
         return (0, 0, 0);
     }
 }
