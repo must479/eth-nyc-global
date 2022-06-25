@@ -97,7 +97,8 @@ beforeEach(async function () {
         sf.settings.config.idaV1Address,
         inToken.address,
         outToken.address,
-        routerMock.address
+        routerMock.address,
+        1000
     );
 });
 
