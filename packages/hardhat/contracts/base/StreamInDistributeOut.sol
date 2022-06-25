@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
+import "hardhat/console.sol";
+
 import {IConstantFlowAgreementV1} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol";
 import {ISuperToken, ISuperfluid, SuperAppBase, SuperAppDefinitions} from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
 import {IInstantDistributionAgreementV1, IDAv1Library} from "@superfluid-finance/ethereum-contracts/contracts/apps/IDAv1Library.sol";
@@ -83,14 +85,20 @@ abstract contract StreamInDistributeOut is SuperAppBase {
         _inToken = inToken;
         _outToken = outToken;
 
-        host.registerApp(
-            SuperAppDefinitions.APP_LEVEL_FINAL |
-                SuperAppDefinitions.BEFORE_AGREEMENT_CREATED_NOOP |
-                SuperAppDefinitions.BEFORE_AGREEMENT_UPDATED_NOOP |
-                SuperAppDefinitions.BEFORE_AGREEMENT_TERMINATED_NOOP
-        );
+        console.log('super constructor');
+        uint256 config = SuperAppDefinitions.APP_LEVEL_FINAL |
+            SuperAppDefinitions.BEFORE_AGREEMENT_CREATED_NOOP |
+            SuperAppDefinitions.BEFORE_AGREEMENT_UPDATED_NOOP |
+            SuperAppDefinitions.BEFORE_AGREEMENT_TERMINATED_NOOP |
+            SuperAppDefinitions.AFTER_AGREEMENT_UPDATED_NOOP | // remove once added
+            SuperAppDefinitions.AFTER_AGREEMENT_TERMINATED_NOOP; // remove once added
+
+        console.log(config);
+        host.registerApp(config);
+        console.log('super constructor 2');
 
         _idaLib.createIndex(outToken, INDEX_ID);
+        console.log('super constructor 3');
     }
 
     // //////////////////////////////////////////////////////////////

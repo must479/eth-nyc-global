@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
+import "hardhat/console.sol";
+
 import {IUniswapV2Router02} from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import {IERC20} from "@uniswap/v2-periphery/contracts/interfaces/IERC20.sol";
 import {ISuperfluid, IInstantDistributionAgreementV1, IConstantFlowAgreementV1, StreamInDistributeOut, ISuperToken} from "./base/StreamInDistributeOut.sol";
@@ -52,11 +54,13 @@ contract StreamSwapDistribute is
         _uniRouter = uniRouter;
         _router = router;
 
+        console.log('herefirst');
         // approve router to transfer the underlying `inToken` on behalf of this contract
-        IERC20(inToken.getUnderlyingToken()).approve(
+        /* IERC20(inToken.getUnderlyingToken()).approve(
             address(router),
             type(uint256).max
         );
+        console.log('here'); */
 
         // approve `outToken` to upgrade the underlying `outToken` on behalf of this contract.
         IERC20(outToken.getUnderlyingToken()).approve(
@@ -64,11 +68,14 @@ contract StreamSwapDistribute is
             type(uint256).max
         );
 
+        console.log('here1');
+
         // approve router to transfer the underlying `inToken` on behalf of this contract
-        IERC20(inToken.getUnderlyingToken()).approve(
+        /* IERC20(inToken.getUnderlyingToken()).approve(
             address(uniRouter),
             type(uint256).max
-        );
+        ); */
+        console.log('here2');
 
         // Update Chainlink
         interval = updateInterval;

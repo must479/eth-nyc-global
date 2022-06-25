@@ -7,11 +7,15 @@ async function main() {
 
   console.log("Deployer address: ", deployer.address)
 
-  var routerAddresses = {
+  var uniRouterAddresses = {
+    'rinkeby': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D' // (uni)
+  }
+
+  var oneInchRouterAddresses = {
     'mainnet': '0x1111111254fb6c44bac0bed2854e76f90643097d',
     'polygon': '0x1111111254fb6c44bac0bed2854e76f90643097d',
     'optimism': '0x1111111254760f7ab3f16433eea9304126dcd199',
-    'rinkeby': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D' (uni)
+    'rinkeby': '0x0000000000000000000000000000000000000001' // does not exist
   };
 
   var sfHostAddresses = {
@@ -59,24 +63,31 @@ async function main() {
   };
 
   var network = 'rinkeby';
-  var args = [ sfHostAddresses[network],
-              sfCfaV1Addresses[network],
-              sfIdaV1Addresses[network],
-              superTokenInAddresses[network],
-              superTokenOutAddresses[network],
-              routerAddresses[network]];
+
+  args = [sfHostAddresses[network],
+  sfCfaV1Addresses[network],
+  sfIdaV1Addresses[network],
+  superTokenInAddresses[network],
+  superTokenOutAddresses[network],
+  uniRouterAddresses[network],
+  oneInchRouterAddresses[network]]
+
   console.log('args: ', args);
 
   const StreamSwapDistributeFactory = await ethers.getContractFactory("StreamSwapDistribute");
+  console.log('here in test');
   const streamSwapDistribute = await StreamSwapDistributeFactory.deploy(
     sfHostAddresses[network],
     sfCfaV1Addresses[network],
     sfIdaV1Addresses[network],
     superTokenInAddresses[network],
     superTokenOutAddresses[network],
-    routerAddresses[network]
+    uniRouterAddresses[network],
+    oneInchRouterAddresses[network],
+    1000
   );
 
+  console.log("StreamSwapDistribute address:", streamSwapDistribute.address);
 };
 
 main()

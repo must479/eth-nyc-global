@@ -7,7 +7,6 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IAggregationExecutor} from "../interfaces/IAggregationExecutor.sol";
 import {IAggregationRouterV4} from "../interfaces/IAggregationRouterV4.sol";
 
-/// @title Mocks AggregationRouter
 contract AggregationRouterMock {
     struct SwapDescription {
         ERC20 srcToken;
