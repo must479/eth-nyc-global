@@ -1,0 +1,71 @@
+{
+  "name": "connect-metamask-react-dapp",
+  "version": "0.1.0",
+  "author": "Jacob E. Dawson",
+  "private": true,
+  "dependencies": {
+    "@chakra-ui/icons": "^1.0.14",
+    "@chakra-ui/react": "^1.6.5",
+    "@emotion/react": "^11.4.0",
+    "@emotion/styled": "^11.3.0",
+    "@fontsource/inter": "^4.5.0",
+    "@metamask/jazzicon": "^2.0.0",
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "@types/jest": "^26.0.15",
+    "@types/node": "^12.0.0",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "@usedapp/core": "^1.0.14",
+    "ethers": "^5.6.9",
+    "framer-motion": "^4.1.17",
+    "node-polyfill-webpack-plugin": "^2.0.0",
+    "react": "^17.0.2",
+    "react-app-rewired": "^2.2.1",
+    "react-dom": "^17.0.2",
+    "react-scripts": "^5.0.1",
+    "typescript": "^4.1.2",
+    "walletconnect": "^1.7.8",
+    "web3modal": "^1.9.8"
+  },
+  "resolutions": {
+    "@ethersproject/abi": "5.2.0",
+    "@ethersproject/contracts": "5.2.0"
+  },
+  "scripts": {
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-app-rewired eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "assert": "^2.0.0",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
+    "https-browserify": "^1.0.0",
+    "os-browserify": "^0.3.0",
+    "process": "^0.11.10",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "url": "^0.11.0"
+  }
+}
