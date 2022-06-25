@@ -11,9 +11,11 @@ import {CommonErrors} from "./libraries/CommonErrors.sol";
 /// @title Contract to Stream in, Swap, then Distribute out.
 contract StreamSwapDistribute is StreamInDistributeOut {
     /// @dev 1inch V4 Router for swapping tokens
+    // IUniswapV2Router02 internal immutable _router;
     IAggregationRouterV4 internal immutable _router;
     uint256 private constant _SHOULD_CLAIM_FLAG = 0x04;
-    address public immutable AGGREGATION_ROUTER_V4;
+    address public immutable AGGREGATION_ROUTER_V4 =
+        0xb2B99928F08539Fb21a7e605355208f681643D42;
 
     constructor(
         ISuperfluid host,
@@ -40,15 +42,15 @@ contract StreamSwapDistribute is StreamInDistributeOut {
 
     /// @dev Before action callback. This swaps the `inToken` for the `outToken`, then returns the
     /// amount to distribute out in the `executeAction` function.
-    /// @param _data Data specifying the swap
     /// @return distributionAmount amount to distribute after the callback.
-    function _beforeDistribution(bytes calldata _data)
+    function _beforeDistribution()
         internal
         override
         returns (uint256 distributionAmount)
     {
         uint256 _receivedAmount;
         address _receiver = address(this);
+        bytes memory _data = abi.encode(msg.sender, address(this));
         // Downgrade the full balance of the `_inToken`.
         _inToken.downgrade(_inToken.balanceOf(address(this)));
 
@@ -59,12 +61,13 @@ contract StreamSwapDistribute is StreamInDistributeOut {
         uint256 amountIn = IERC20(inTokenUnderlying).balanceOf(address(this));
 
         // Get swap params
+        // _data[4:]
         (
             IAggregationExecutor _caller,
             IAggregationRouterV4.SwapDescription memory _swapDescription,
             bytes memory _tradeData
         ) = abi.decode(
-                _data[4:],
+                _data,
                 (
                     IAggregationExecutor,
                     IAggregationRouterV4.SwapDescription,
@@ -75,8 +78,8 @@ contract StreamSwapDistribute is StreamInDistributeOut {
         // Check for incorrect swap information
         if (
             _swapDescription.dstReceiver != _receiver ||
-            address(_swapDescription.srcToken) != _inToken ||
-            address(_swapDescription.dstToken) != _outToken ||
+            address(_swapDescription.srcToken) != address(_inToken) ||
+            address(_swapDescription.dstToken) != address(_outToken) ||
             _swapDescription.amount != amountIn ||
             _swapDescription.flags != _SHOULD_CLAIM_FLAG
         ) revert CommonErrors.IncorrectSwapInformation();

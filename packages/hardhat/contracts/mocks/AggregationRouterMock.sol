@@ -2,14 +2,15 @@
 pragma solidity ^0.8.13;
 
 import {ERC20Mock} from "./ERC20Mock.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IAggregationExecutor} from "../interfaces/IAggregationExecutor.sol";
 import {IAggregationRouterV4} from "../interfaces/IAggregationRouterV4.sol";
 
 contract AggregationRouterMock {
     struct SwapDescription {
-        IERC20 srcToken;
-        IERC20 dstToken;
+        ERC20 srcToken;
+        ERC20 dstToken;
         address payable srcReceiver;
         address payable dstReceiver;
         uint256 amount;
@@ -41,12 +42,12 @@ contract AggregationRouterMock {
                     bytes
                 )
             );
-        ERC20Mock(_swapDescription.srcToken).transferFrom(
+        ERC20Mock(address(_swapDescription.srcToken)).transferFrom(
             msg.sender,
             address(this),
             amountIn
         );
-        ERC20Mock(_swapDescription.dstToken).mint(
+        ERC20Mock(address(_swapDescription.dstToken)).mint(
             _swapDescription.dstReceiver,
             amountIn
         );
