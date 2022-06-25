@@ -2,10 +2,10 @@
 pragma solidity ^0.8.13;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IAggregagationExecutor} from "./IAggregagationExecutor.sol";
+import {IAggregationExecutor} from "./IAggregationExecutor.sol";
 
-/// @title Aggregagation Router
-interface IAggregagationRouterV4 {
+/// @title Aggregation Router
+interface IAggregationRouterV4 {
     struct SwapDescription {
         IERC20 srcToken;
         IERC20 dstToken;

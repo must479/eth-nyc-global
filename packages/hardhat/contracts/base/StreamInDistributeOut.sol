@@ -98,11 +98,11 @@ abstract contract StreamInDistributeOut is SuperAppBase {
     // //////////////////////////////////////////////////////////////
 
     /// @notice Executes dev-defined action and distributes the out-token.
+    /// @param _data Data specifying the swap
     /// @dev DO NOT override this function, override `_beforeDistribution` instead.
-    function executeAction() public {
+    function executeAction(bytes calldata _data) public {
         if (!_shouldDistributeHax()) return;
-
-        uint256 distributionAmount = _beforeDistribution();
+        uint256 distributionAmount = _beforeDistribution(_data);
 
         _idaLib.distribute(_outToken, INDEX_ID, distributionAmount);
 
@@ -113,14 +113,15 @@ abstract contract StreamInDistributeOut is SuperAppBase {
 
     /// @notice Executes dev-defined action and distributes the out-token in a super app callback.
     /// @param ctx Super app callback context byte string.
+    /// @param _data Data specifying the swap
     /// @return newCtx New context returned from IDA distribution.
-    function executeActionInCallback(bytes calldata ctx)
+    function executeActionInCallback(bytes calldata ctx, bytes calldata _data)
         public
         returns (bytes memory newCtx)
     {
         if (!_shouldDistributeHax()) return ctx;
 
-        uint256 distributionAmount = _beforeDistribution();
+        uint256 distributionAmount = _beforeDistribution(_data);
 
         newCtx = _idaLib.distributeWithCtx(
             ctx,
@@ -135,8 +136,9 @@ abstract contract StreamInDistributeOut is SuperAppBase {
     }
 
     /// @dev Executes dev-defined action BEFORE the out-token distribution.
+    /// @param _data Data specifying the swap
     /// @return distributionAmount Amount to distribute
-    function _beforeDistribution()
+    function _beforeDistribution(bytes calldata _data)
         internal
         virtual
         returns (uint256 distributionAmount)
