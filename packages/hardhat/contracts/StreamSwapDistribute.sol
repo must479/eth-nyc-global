@@ -107,13 +107,15 @@ contract StreamSwapDistribute is StreamInDistributeOut {
             );
 
         // Check for incorrect swap information
-        if (
-            _swapDescription.dstReceiver != _receiver ||
-            address(_swapDescription.srcToken) != address(_inToken) ||
-            address(_swapDescription.dstToken) != address(_outToken) ||
-            _swapDescription.amount != amountIn ||
-            _swapDescription.flags != _SHOULD_CLAIM_FLAG
-        ) revert CommonErrors.IncorrectSwapInformation();
+        // if (
+        //     _swapDescription.dstReceiver != _receiver ||
+        //     address(_swapDescription.srcToken) !=
+        //     address(_inToken.getUnderlyingToken()) ||
+        //     address(_swapDescription.dstToken) !=
+        //     address(_outToken.getUnderlyingToken()) ||
+        //     _swapDescription.amount != amountIn ||
+        //     _swapDescription.flags != _SHOULD_CLAIM_FLAG
+        // ) revert CommonErrors.IncorrectSwapInformation();
 
         // Conduct swap
         (_receivedAmount, , ) = _router.swap(
