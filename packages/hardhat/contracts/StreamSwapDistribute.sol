@@ -64,6 +64,12 @@ contract StreamSwapDistribute is
             type(uint256).max
         );
 
+        // approve router to transfer the underlying `inToken` on behalf of this contract
+        IERC20(inToken.getUnderlyingToken()).approve(
+            address(uniRouter),
+            type(uint256).max
+        );
+
         // Update Chainlink
         interval = updateInterval;
         lastTimeStamp = block.timestamp;
