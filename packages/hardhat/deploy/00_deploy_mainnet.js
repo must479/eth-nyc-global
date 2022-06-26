@@ -1,6 +1,6 @@
 // deploy/00_deploy_your_contract.js
 
-const { ethers } = require("hardhat");
+const { ethers, l2ethers } = require("hardhat");
 
 async function main() {
   const [deployer] = await hre.ethers.getSigners();
@@ -8,7 +8,9 @@ async function main() {
   console.log("Deployer address: ", deployer.address)
 
   var uniRouterAddresses = {
-    'rinkeby': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D' // (uni)
+    'rinkeby': '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D', // (uni)
+    'optimism': '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
+    'polygon': '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45'
   }
 
   var oneInchRouterAddresses = {
@@ -45,7 +47,7 @@ async function main() {
 
   var superTokenInAddresses = {
     'polygon': '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619', // WETH
-    'optimism': '​​0x4ac8bd1bdae47beef2d1c6aa62229509b962aa0d', // ETHX,
+    'optimism': '0x4ac8bd1bdae47beef2d1c6aa62229509b962aa0d', // ETHX,
     'rinkeby': '0x0fa3561bbf4095ebbcd3bf85995dda55e3d16f95' // WETHx
   }
 
@@ -62,7 +64,7 @@ async function main() {
     'rinkeby': '0x0165b733e860b1674541BB7409f8a4743A564157' // DAI
   };
 
-  var network = 'rinkeby';
+  var network = 'polygon';
 
   args = [sfHostAddresses[network],
   sfCfaV1Addresses[network],
@@ -75,6 +77,7 @@ async function main() {
   console.log('args: ', args);
 
   const StreamSwapDistributeFactory = await ethers.getContractFactory("StreamSwapDistribute");
+
   console.log('here in test');
   const streamSwapDistribute = await StreamSwapDistributeFactory.deploy(
     sfHostAddresses[network],
@@ -84,7 +87,8 @@ async function main() {
     superTokenOutAddresses[network],
     uniRouterAddresses[network],
     oneInchRouterAddresses[network],
-    100
+    100,
+    { gasLimit: 600000 }
   );
 
   console.log("StreamSwapDistribute address:", streamSwapDistribute.address);
