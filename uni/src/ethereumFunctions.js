@@ -1,12 +1,15 @@
 import { Contract, ethers } from "ethers";
 import * as chains from "./constants/chains";
 import COINS from "./constants/coins";
+import { Framework } from "@superfluid-finance/sdk-core";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
 const ROUTER = require("./build/UniswapV2Router02.json");
+const LONG_TERM_ROUTER = require("./build/StreamSwapDistribute.json");
 const ERC20 = require("./build/ERC20.json");
 const FACTORY = require("./build/IUniswapV2Factory.json");
 const PAIR = require("./build/IUniswapV2Pair.json");
+
 
 export async function getProvider() {
   // return new ethers.providers.Web3Provider(window.ethereum);
@@ -30,8 +33,21 @@ export async function getNetwork(provider) {
   return network.chainId;
 }
 
+export async function getSf(chainId) {
+  const provider = await getProvider();
+  const sf = await Framework.create({
+    chainId: chainId,
+    provider
+  });
+  return sf;
+}
+
 export function getRouter(address, signer) {
   return new Contract(address, ROUTER.abi, signer);
+}
+
+export function getLongTermRouter(address, signer) {
+  return new Contract(address, LONG_TERM_ROUTER.abi, signer);
 }
 
 export async function checkNetwork(provider) {
@@ -105,9 +121,24 @@ export async function getBalanceAndSymbol(
       const balanceRaw = await token.balanceOf(accountAddress);
       const symbol = await token.symbol();
 
+      var superTokenAddress = undefined;
+      if (symbol == "WETH") {
+        superTokenAddress = "0x0fa3561bbf4095ebbcd3bf85995dda55e3d16f95";
+      } else if (symbol == "DAI") {
+        superTokenAddress = "0xdb6ad3aff4c31b32327fecb110f30daf4c378b11";
+      } else if (symbol == "USDC") {
+        superTokenAddress = "0x2ea129c42b229bc2b8fd8f3fd74b0473da536101";
+      } else if (symbol == "WBTC") {
+        superTokenAddress = "0x9a1b7aa93991f31fe45f6ac02e6bb0034b5f542d";
+      }
+
+      console.log('symbol: ', symbol);
+      console.log('superTokenAddress: ', superTokenAddress);
+
       return {
         balance: balanceRaw * 10 ** -tokenDecimals,
         symbol: symbol,
+        superTokenAddress: superTokenAddress
       };
     }
   } catch (error) {
@@ -115,6 +146,45 @@ export async function getBalanceAndSymbol(
     console.log(error);
     return false;
   }
+}
+
+export async function streamTokens(
+  address1,
+  address2,
+  amount,
+  sf,
+  longTermSwapContract,
+  flowRate,
+  accountAddress,
+  signer
+) {
+
+  console.log('addresses');
+  console.log(address1);
+  console.log(address2);
+  // load the usdcx SuperToken via the Framework (using the token address)
+  const token1x = await sf.loadSuperToken(address1);
+
+  console.log('wrapped token: ', token1x);
+  // OR
+  // load the daix SuperToken via the Framework (using the token symbol)
+  //const token2x = await sf.loadSuperToken(address2);
+
+  console.log('accountAddress: ', accountAddress);
+  console.log('longTermSwapContract: ', longTermSwapContract.address);
+
+    // Write operations
+  const createFlowOperation = await sf.cfaV1.createFlow({
+    sender: accountAddress,
+    receiver: longTermSwapContract.address,
+    superToken: token1x.address,
+    flowRate: flowRate
+  });
+
+  console.log('success');
+  const txnResponse = await createFlowOperation.exec(signer);
+  const txnReceipt = await txnResponse.wait();
+  console.log(txnReceipt);
 }
 
 // This function swaps two particular tokens / AUT, it can handle switching from AUT to ERC20 token, ERC20 token to AUT, and ERC20 token to ERC20 token.
@@ -260,6 +330,7 @@ export async function getReserves(
 ) {
   try {
     const pairAddress = await factory.getPair(address1, address2);
+    console.log('pairAddress: ', pairAddress);
     const pair = new Contract(pairAddress, PAIR.abi, signer);
 
     if (pairAddress !== "0x0000000000000000000000000000000000000000") {

@@ -21,6 +21,7 @@ import {
   getBalanceAndSymbol,
   getWeth,
   swapTokens,
+  streamTokens,
   getReserves,
 } from "../ethereumFunctions";
 import CoinField from "./CoinField";
@@ -107,11 +108,13 @@ function CoinSwapper(props) {
 
   // Stores data about their respective coin
   const [coin1, setCoin1] = React.useState({
+    superTokenAddress: undefined,
     address: undefined,
     symbol: undefined,
     balance: undefined,
   });
   const [coin2, setCoin2] = React.useState({
+    superTokenAddress: undefined,
     address: undefined,
     symbol: undefined,
     balance: undefined,
@@ -195,6 +198,7 @@ function CoinSwapper(props) {
           address: address,
           symbol: data.symbol,
           balance: data.balance,
+          superTokenAddress: data.superTokenAddress
         });
       });
     }
@@ -224,6 +228,7 @@ function CoinSwapper(props) {
           address: address,
           symbol: data.symbol,
           balance: data.balance,
+          superTokenAddress: data.superTokenAddress
         });
       });
     }
@@ -251,6 +256,40 @@ function CoinSwapper(props) {
       })
       .catch((e) => {
         setLoading(false);
+        enqueueSnackbar("Transaction Failed (" + e.message + ")", {
+          variant: "error",
+          autoHideDuration: 10000,
+        });
+      });
+  };
+
+  const stream = () => {
+    console.log("Attempting to stream tokens...");
+    setLoading(true);
+
+    console.log('coin1: ', coin1);
+    console.log('coin2: ', coin2);
+
+    streamTokens(
+      coin1.superTokenAddress,
+      coin2.superTokenAddress,
+      field1Value,
+      props.network.sf,
+      props.network.longTermRouter,
+      '10000',
+      props.network.account,
+      props.network.signer
+    )
+      .then(() => {
+        setLoading(false);
+
+        // If the transaction was successful, we clear to input to make sure the user doesn't accidental redo the transfer
+        setField1Value("");
+        enqueueSnackbar("Transaction Successful", { variant: "success" });
+      })
+      .catch((e) => {
+        setLoading(false);
+        console.log(e);
         enqueueSnackbar("Transaction Failed (" + e.message + ")", {
           variant: "error",
           autoHideDuration: 10000,
@@ -370,6 +409,7 @@ function CoinSwapper(props) {
           setCoin2({
             ...coin2,
             balance: data.balance,
+            superTokenAddress: data.superTokenAddress
           });
         });
       }
@@ -487,10 +527,10 @@ function CoinSwapper(props) {
               valid={isButtonEnabled()}
               success={false}
               fail={false}
-              onClick={swap}
+              onClick={stream}
             >
               <LoopIcon />
-              Swap
+              Stream & Swap
             </LoadingButton>
           </Grid>
         </Paper>

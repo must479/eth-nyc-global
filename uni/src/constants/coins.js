@@ -74,7 +74,7 @@ const PARASTATECoins = [
     abbr: "TB",
     address: "0x4489D87C8440B19f11d63FA2246f943F492F3F5F",
   },
-  
+
   {
     name: "Token C",
     abbr: "TC",
@@ -103,7 +103,7 @@ const GANACHECoins = [
     abbr: "TB",
     address: "0x30988e63329713c3f3FeA1ca1B94D4Abb02F78C5",
   },
-  
+
   {
     name: "Token C",
     abbr: "TC",
@@ -206,21 +206,41 @@ const KOVANCoins = [
 ]
 
 const RINKEBYCoins = [
-  {
-    name: "Ether",
-    abbr: "ETH",
-    address: "", // Weth address is fetched from the router
-  },
+  // {
+  //   name: "Ether",
+  //   abbr: "ETH",
+  //   address: "", // Weth address is fetched from the router,
+  // },
   {
     name: "Dai",
     abbr: "DAI",
     address: "0x95b58a6bff3d14b7db2f5cb5f0ad413dc2940658",
+    superTokenAddress: "0xdb6ad3aff4c31b32327fecb110f30daf4c378b11"
   },
   {
     name: "Tether USD",
     abbr: "USDT",
     address: "0x3b00ef435fa4fcff5c209a37d1f3dcff37c705ad",
+    superTokenAddress: "0x30087b3d21775080d0b68073a658e0d43a5d966d"
   },
+  {
+    name: "USDC",
+    abbr: "USDC",
+    address: "0xeb8f08a975Ab53E34D8a0330E0D34de942C95926",
+    superTokenAddress: "0x2ea129c42b229bc2b8fd8f3fd74b0473da536101"
+  },
+  {
+    name: "Wrapped BTC",
+    abbr: "WBTC",
+    address: "0x5AF59f281B3cFd0C12770E4633e6C16dd08eA543",
+    superTokenAddress: "0x9a1b7aa93991f31fe45f6ac02e6bb0034b5f542d"
+  },
+  {
+    name: "Wrapped ETH",
+    abbr: "WETH",
+    address: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
+    superTokenAddress: "0x0fa3561bbf4095ebbcd3bf85995dda55e3d16f95"
+  }
 ]
 
 const GÖRLICoins = [

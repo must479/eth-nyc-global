@@ -7,7 +7,9 @@ import {
   getProvider,
   getAccount,
   getFactory,
+  getLongTermRouter,
   getRouter,
+  getSf,
   getNetwork,
   getWeth,
 } from "./ethereumFunctions";
@@ -38,6 +40,7 @@ const Web3Provider = (props) => {
   network.coins = [];
   network.chainID = useRef(null);
   network.router = useRef(null);
+  network.longTermRouter = useRef(null);
   network.factory = useRef(null);
   network.weth = useRef(null);
   const backgroundListener = useRef(null);
@@ -57,6 +60,13 @@ const Web3Provider = (props) => {
           // Get the router using the chainID
           network.router = await getRouter(
             chains.routerAddress.get(chainId),
+            network.signer
+          );
+          // Get the Superfluid router using the network
+          network.sf = await getSf(chainId);
+          // Get the deployed longTermSwap contract using the ChainID;
+          network.longTermRouter = await getLongTermRouter(
+            chains.longTermSwapAddress.get(chainId),
             network.signer
           );
           // Get default coins for network
