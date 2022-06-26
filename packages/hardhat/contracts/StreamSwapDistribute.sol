@@ -26,7 +26,7 @@ contract StreamSwapDistribute is
         0xb2B99928F08539Fb21a7e605355208f681643D42;
 
     // Chainlink vars
-    uint256 public immutable interval;
+    uint256 public interval;
     uint256 public lastTimeStamp;
 
     // Swap description
@@ -177,6 +177,11 @@ contract StreamSwapDistribute is
 
         //Upgrade the full underlying `_outToken` balance.
         _outToken.upgrade(distributionAmount);
+    }
+
+    /// @dev Modify interval
+    function modifyInterval(uint256 updateInterval_) public {
+        updateInterval = updateInterval_;
     }
 
     /// @dev Checks upkeep
