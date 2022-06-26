@@ -108,38 +108,29 @@ export async function getBalanceAndSymbol(
   coins
 ) {
   try {
-    if (address === weth_address) {
-      const balanceRaw = await provider.getBalance(accountAddress);
+    const token = new Contract(address, ERC20.abi, signer);
+    const tokenDecimals = await getDecimals(token);
+    const balanceRaw = await token.balanceOf(accountAddress);
+    const symbol = await token.symbol();
 
-      return {
-        balance: ethers.utils.formatEther(balanceRaw),
-        symbol: coins[0].abbr,
-      };
-    } else {
-      const token = new Contract(address, ERC20.abi, signer);
-      const tokenDecimals = await getDecimals(token);
-      const balanceRaw = await token.balanceOf(accountAddress);
-      const symbol = await token.symbol();
+    var superTokenAddress = undefined;
+    if (symbol == "WETH") {
+      superTokenAddress = "0x0fa3561bbf4095ebbcd3bf85995dda55e3d16f95";
+    } else if (symbol == "DAI") {
+      superTokenAddress = "0xdb6ad3aff4c31b32327fecb110f30daf4c378b11";
+    } else if (symbol == "USDC") {
+      superTokenAddress = "0x2ea129c42b229bc2b8fd8f3fd74b0473da536101";
+    } else if (symbol == "WBTC") {
+      superTokenAddress = "0x9a1b7aa93991f31fe45f6ac02e6bb0034b5f542d";
+    }
 
-      var superTokenAddress = undefined;
-      if (symbol == "WETH") {
-        superTokenAddress = "0x0fa3561bbf4095ebbcd3bf85995dda55e3d16f95";
-      } else if (symbol == "DAI") {
-        superTokenAddress = "0xdb6ad3aff4c31b32327fecb110f30daf4c378b11";
-      } else if (symbol == "USDC") {
-        superTokenAddress = "0x2ea129c42b229bc2b8fd8f3fd74b0473da536101";
-      } else if (symbol == "WBTC") {
-        superTokenAddress = "0x9a1b7aa93991f31fe45f6ac02e6bb0034b5f542d";
-      }
+    console.log('symbol: ', symbol);
+    console.log('superTokenAddress: ', superTokenAddress);
 
-      console.log('symbol: ', symbol);
-      console.log('superTokenAddress: ', superTokenAddress);
-
-      return {
-        balance: balanceRaw * 10 ** -tokenDecimals,
-        symbol: symbol,
-        superTokenAddress: superTokenAddress
-      };
+    return {
+      balance: balanceRaw * 10 ** -tokenDecimals,
+      symbol: symbol,
+      superTokenAddress: superTokenAddress
     }
   } catch (error) {
     console.log("The getBalanceAndSymbol function had an error!");
