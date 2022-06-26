@@ -83,7 +83,8 @@ export function doesTokenExist(address, signer) {
 }
 
 export function getFlowRate(amount, hor) {
-  return amount / (hor * 3600 * 24);
+  return '15432098765432';
+  //return amount / (hor * 3600 * 24);
 }
 
 export async function getDecimals(token) {
@@ -128,6 +129,8 @@ export async function getBalanceAndSymbol(
       superTokenAddress = "0x2ea129c42b229bc2b8fd8f3fd74b0473da536101";
     } else if (symbol == "WBTC") {
       superTokenAddress = "0x9a1b7aa93991f31fe45f6ac02e6bb0034b5f542d";
+    } else if (symbol == "USDT") {
+      superTokenAddress = "0x30087b3d21775080d0b68073a658e0d43a5d966d";
     }
 
     console.log("symbol: ", symbol);
