@@ -19,6 +19,21 @@ LOG_HASH_DAI_USDC = "0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840
 
 LOG_HASH_DAI_WETH = "0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822"
 
+DAI_ASSET = "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa"
+
+
+def getswivel_data():
+    depth = 20
+    response = requests.get(
+        "https://api-dev.swivel.exchange/v2/fills?underlying="+DAI_ASSET+"&maturity=1669957199&depth="+str(depth))
+    data = response.json()
+
+    out_file = open("Swivel.json", "w")
+
+    json.dump(data, out_file, indent=6)
+
+    out_file.close()
+
 
 def block_height(num_days=7):
     print('block heigh')
