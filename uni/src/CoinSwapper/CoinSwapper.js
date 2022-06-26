@@ -133,10 +133,11 @@ function CoinSwapper(props) {
   // Controls the loading button
   const [loading, setLoading] = React.useState(false);
 
+  //later needs to be deleted
   useEffect(() => {
     if (field1Value != 0.0 && field2Value != 0.0) {
-      setHor("1");
-      setFreq("2");
+      // setHor("1");
+      // setFreq("2");
     }
   }, [field1Value, field2Value]);
 
@@ -291,6 +292,7 @@ function CoinSwapper(props) {
       "3858024691358",
       props.network.account,
       props.network.provider,
+      field1Value,
       freq,
       hor
     )
@@ -364,6 +366,8 @@ function CoinSwapper(props) {
     if (isNaN(parseFloat(field1Value))) {
       setField2Value("");
     } else if (parseFloat(field1Value) && coin1.address && coin2.address) {
+      console.log("field1Valueeee: ", field1Value);
+
       getAmountOut(
         coin1.address,
         coin2.address,
@@ -371,7 +375,11 @@ function CoinSwapper(props) {
         props.network.router,
         props.network.signer
       )
-        .then((amount) => setField2Value(amount.toFixed(7)))
+        .then((amount) => {
+          console.log("amounnntt", amount);
+
+          setField2Value(amount.toFixed(2));
+        })
         .catch((e) => {
           console.log(e);
           setField2Value("NA");
