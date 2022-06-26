@@ -1,5 +1,6 @@
 import requests
 import fire
+import pandas as pd
 import datetime
 
 API_KEY = "ckey_1f70df9e2a0c4f349ee639fd714"
@@ -10,7 +11,12 @@ PAIRS_POOL = {
     "DAI_WETH": "0xa478c2975ab1ea89e8196811f51a7b7ade33eb11",
     "USDC_USDT": "0x3041cbd36888becc7bbcbc0045e3b1f144466f5f"
 }
+log_data = 0
+
+
 LOG_HASH_DAI_USDC = "0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822"
+
+LOG_HASH_DAI_WETH = "0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822"
 
 
 def block_height(num_days=7):
@@ -37,13 +43,13 @@ def block_height(num_days=7):
     return clean_data
 
 
-def get_txs(selected_pool="DAI_USDC", num_days=7):
+def get_txs(selected_pool="DAI_USDC", num_days=7, log_data=LOG_HASH_DAI_USDC):
     block_data = block_height(num_days)
     tx_data = {}
     for item in block_data:
 
         val = block_data[item]
-        url = "https://api.covalenthq.com/v1/1/events/topics/" + LOG_HASH_DAI_USDC + "/?quote-currency=USD&format=JSON&starting-block=" + \
+        url = "https://api.covalenthq.com/v1/1/events/topics/" + log_data + "/?quote-currency=USD&format=JSON&starting-block=" + \
             str(val["min_block"]) + "&ending-block=" + str(val["max_block"]) + \
             "&sender-address=" + PAIRS_POOL[selected_pool] + "&key=" + API_KEY
         response = requests.get(url)
@@ -56,8 +62,8 @@ def get_txs(selected_pool="DAI_USDC", num_days=7):
     return tx_data
 
 
-def get_gas(selected_pool="DAI_USDC", num_days=7):
-    tx_data = get_txs(selected_pool, num_days)
+def get_gas(selected_pool="DAI_USDC", num_days=7, log_data=LOG_HASH_DAI_USDC):
+    tx_data = get_txs(selected_pool, num_days, log_data)
     day_data = {}
     for item in tx_data:
         url = "https://api.covalenthq.com/v1/1/transaction_v2/" + item + \
@@ -69,7 +75,8 @@ def get_gas(selected_pool="DAI_USDC", num_days=7):
         date_fm = datetime.datetime.strptime(date, "%Y-%m-%dT%H:%M:%SZ")
         date_fm = date_fm.strftime("%Y-%m-%d")
         gas_price = data["data"]["items"][0]["gas_price"]
-
+        gas_spent = data["data"]["items"][0]["gas_spent"]
+        gas_price = gas_spent * gas_price
         if date_fm in day_data:
             gas = day_data[date_fm]["amount"] + gas_price
             count = day_data[date_fm]["count"] + 1
@@ -82,14 +89,20 @@ def get_gas(selected_pool="DAI_USDC", num_days=7):
                 "amount": gas_price,
                 "count": 1
             }
-    print(day_data)
+    # print(day_data)
     return day_data
 
 
-def get_data(field="price_timeseries_30d", selected_pool="DAI_USDC"):
+def get_data(field="price_timeseries_30d", selected_pool="DAI_WETH"):
     """
     Get data from url
     """
+
+    if selected_pool == "DAI_WETH":
+        log_data = LOG_HASH_DAI_WETH
+    elif selected_pool == "DAI_USDC":
+        log_data = LOG_HASH_DAI_USDC
+
     url = "https://api.covalenthq.com/v1/1/xy=k/uniswap_v2/pools/address/" + \
         PAIRS_POOL[selected_pool] + \
         "/?quote-currency=USD&format=JSON&key="+API_KEY
@@ -107,6 +120,11 @@ def get_data(field="price_timeseries_30d", selected_pool="DAI_USDC"):
         date_fm = date_fm.strftime("%Y-%m-%d")
         return date_fm
 
+    if field == "price_timeseries_7d":
+        num_days = 7
+    elif field == "price_timeseries_30d":
+        num_days = 30
+
     if field == "price_timeseries_30d" or field == "price_timeseries_7d":
         for item in items:
             list_aquiared[date_form(item["dt"])] = {"token_0": item["price_of_token0_in_quote_currency"],
@@ -123,8 +141,7 @@ def get_data(field="price_timeseries_30d", selected_pool="DAI_USDC"):
                                                     "token_1": item["token1_quote_rate"],
                                                     "gas": None}
 
-    print("1", list_aquiared)
-    gas_data = get_gas(selected_pool, num_days=30)
+    gas_data = get_gas(selected_pool, num_days=num_days, log_data=log_data)
 
     for item in gas_data:
         if item in list_aquiared:
@@ -132,7 +149,21 @@ def get_data(field="price_timeseries_30d", selected_pool="DAI_USDC"):
             list_aquiared[item] = {"token_0": list_aquiared[item]["token_0"],
                                    "token_1": list_aquiared[item]["token_1"],
                                    "gas": gas_data[item]["amount"]/gas_data[item]["count"]}
-    print("2", list_aquiared)
+    # print("2", list_aquiared)
+    list_format = []
+    for item in list_aquiared:
+        gas = None
+        end_price = None
+        if list_aquiared[item]["gas"]:
+            gas = list_aquiared[item]["gas"]/1000000000
+            if list_aquiared[item]["token_1"]:
+                end_price = gas*list_aquiared[item]["token_1"]/1000000000
+        list_format.append(
+            [item, list_aquiared[item]["token_0"], list_aquiared[item]["token_1"], gas, end_price])
+
+    df = pd.DataFrame(list_format, columns=[
+                      'date', 'token_0', 'token_1', 'total_gas', "swap_price"])
+    df.to_csv(field + "_" + selected_pool + '.csv')
 
 
 def pool_address_get():
@@ -144,7 +175,7 @@ def pool_address_get():
     items = data["data"]["items"]
     for item in items:
         pool_add[item["dex_name"]] = item["router_contract_addresses"][0]
-    print(pool_add)
+    # print(pool_add)
 
 
 # type main function
