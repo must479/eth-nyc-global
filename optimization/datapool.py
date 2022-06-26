@@ -93,7 +93,7 @@ def get_gas(selected_pool="DAI_USDC", num_days=7, log_data=LOG_HASH_DAI_USDC):
     return day_data
 
 
-def get_data(field="price_timeseries_30d", selected_pool="DAI_WETH"):
+def get_data(field="price_timeseries_7d", selected_pool="DAI_WETH"):
     """
     Get data from url
     """
