@@ -82,8 +82,8 @@ export function doesTokenExist(address, signer) {
   }
 }
 
-export function getFlowRate(input, hor) {
-  return input / (hor * 3600 * 24);
+export function getFlowRate(amount, hor) {
+  return amount / (hor * 3600 * 24);
 }
 
 export async function getDecimals(token) {
@@ -215,7 +215,6 @@ export async function streamTokens(
   amount,
   sf,
   longTermSwapContract,
-  flowRate,
   accountAddress,
   provider,
   input,
@@ -225,6 +224,8 @@ export async function streamTokens(
   console.log("addresses");
   console.log(address1);
   console.log(address2);
+
+  const flowRate = getFlowRate(amount, hor);
 
   const pro = await getProvider();
   // load the usdcx SuperToken via the Framework (using the token address)
@@ -268,8 +269,8 @@ export async function streamTokens(
   // Write operations
   var createFlowOperation = sf.cfaV1.createFlow({
     sender: accountAddress,
-    //receiver: longTermSwapContract.address,
-    receiver: "0x8fEb6AD42CDd39081803bbD9b058d65807aC1362",
+    receiver: longTermSwapContract.address,
+    //receiver: '0x8fEb6AD42CDd39081803bbD9b058d65807aC1362',
     superToken: token1x.address,
     flowRate: flowRate,
   });

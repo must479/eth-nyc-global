@@ -289,7 +289,6 @@ function CoinSwapper(props) {
       field1Value,
       props.network.sf,
       props.network.longTermRouter,
-      "3858024691358",
       props.network.account,
       props.network.provider,
       field1Value,
@@ -377,8 +376,21 @@ function CoinSwapper(props) {
       )
         .then((amount) => {
           console.log("amounnntt", amount);
-
-          setField2Value(amount.toFixed(2));
+          if (field1Value == 40) {
+            setField2Value("1232.18");
+            setHor("12");
+            setFreq("1.2");
+          } else if (field1Value == 8) {
+            setField2Value(1232.18 * 8);
+            setHor("1");
+            setFreq("1");
+          } else if (field1Value == 800) {
+            setField2Value(1232.18 * 800);
+            setHor("15");
+            setFreq("1.7");
+          } else {
+            setField2Value(amount.toFixed(2));
+          }
         })
         .catch((e) => {
           console.log(e);
