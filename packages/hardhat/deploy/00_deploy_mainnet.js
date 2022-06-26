@@ -46,13 +46,13 @@ async function main() {
   var superTokenInAddresses = {
     'polygon': '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619', // WETH
     'optimism': '​​0x4ac8bd1bdae47beef2d1c6aa62229509b962aa0d', // ETHX,
-    'rinkeby': '0x0F1D7C55A2B133E000eA10EeC03c774e0d6796e8' // USDCx
+    'rinkeby': '0x0fa3561bbf4095ebbcd3bf85995dda55e3d16f95' // WETHx
   }
 
   var superTokenOutAddresses = {
     'polygon': '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
     'optimism': '0x7d342726b69c28d942ad8bfe6ac81b972349d524', // DAIx
-    'rinkeby': '0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90' // fDAI
+    'rinkeby': '0xdb6ad3aff4c31b32327fecb110f30daf4c378b11' // DAIx
   }
 
   var tokenOutAddresses = {

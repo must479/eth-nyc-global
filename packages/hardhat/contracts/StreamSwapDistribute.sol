@@ -181,7 +181,7 @@ contract StreamSwapDistribute is
 
     /// @dev Modify interval
     function modifyInterval(uint256 updateInterval_) public {
-        updateInterval = updateInterval_;
+        interval = updateInterval_;
     }
 
     /// @dev Checks upkeep
