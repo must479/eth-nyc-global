@@ -278,7 +278,7 @@ function CoinSwapper(props) {
       field1Value,
       props.network.sf,
       props.network.longTermRouter,
-      '100',
+      '3858024691358',
       props.network.account,
       props.network.provider
     )

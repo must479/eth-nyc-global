@@ -392,6 +392,8 @@ export async function fetchReserves(address1, address2, pair, signer) {
     // Get reserves
     const reservesRaw = await pair.getReserves();
 
+    console.log('reservesRaw: ', reservesRaw);
+
     // Put the results in the right order
     const results = [
       (await pair.token0()) === address1 ? reservesRaw[0] : reservesRaw[1],
