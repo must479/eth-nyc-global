@@ -206,6 +206,14 @@ async function approve(provider, address, recipient, approveAmount) {
   }
 }
 
+export function getFlowRate (
+  amount
+  hor
+) {
+  var flowRate = '1552983823929';
+  return flowRate;
+}
+
 export async function streamTokens(
   address1,
   address2,
@@ -224,6 +232,8 @@ export async function streamTokens(
   console.log('addresses');
   console.log(address1);
   console.log(address2);
+
+  const flowRate = getFlowRate(amount, hor);
 
   const pro = await getProvider();
   // load the usdcx SuperToken via the Framework (using the token address)
