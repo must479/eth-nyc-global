@@ -21,12 +21,26 @@ module.exports = {
 		],
   },
   networks: {
-    rinkeby: {
+    "rinkeby": {
      url: `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
      blockGasLimit: 100000000429720,
      accounts: [
        `${RINKEBY_PRIVATE_KEY}`,
       ]
+    },
+    "optimism-kovan": {
+      url: `https://opt-kovan.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      blockGasLimit: 100000000429720,
+      accounts: [
+        `${RINKEBY_PRIVATE_KEY}`,
+       ]
+    },
+    "polygon-mumbai": {
+      url: `https://polygon-mumbai.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+      blockGasLimit: 100000000429720,
+      accounts: [
+        `${RINKEBY_PRIVATE_KEY}`,
+       ]
     }
   }
 }
