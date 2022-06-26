@@ -206,11 +206,12 @@ const KOVANCoins = [
 ]
 
 const RINKEBYCoins = [
-  // {
-  //   name: "Ether",
-  //   abbr: "ETH",
-  //   address: "", // Weth address is fetched from the router,
-  // },
+  {
+    name: "Fake Ether",
+    abbr: "ETHx",
+    address: "", // Weth address is fetched from the router,
+    superTokenAddress: "0xa623b2DD931C5162b7a0B25852f4024Db48bb1A0" // ETHx
+  },
   {
     name: "Dai",
     abbr: "DAI",
@@ -240,6 +241,24 @@ const RINKEBYCoins = [
     abbr: "WETH",
     address: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
     superTokenAddress: "0x0fa3561bbf4095ebbcd3bf85995dda55e3d16f95"
+  },
+  {
+    name: "Fake DAI",
+    abbr: "fDAI",
+    address: "0x15F0Ca26781C3852f8166eD2ebce5D18265cceb7",
+    superTokenAddress: "0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90"
+  },
+  {
+    name: "Fake USDC",
+    abbr: "fUSDC",
+    address: "0xbe49ac1EadAc65dccf204D4Df81d650B50122aB2",
+    superTokenAddress: "0x0F1D7C55A2B133E000eA10EeC03c774e0d6796e8"
+  },
+  {
+    name: "Fake TUSD",
+    abbr: "TUSDx",
+    address: "0xA794C9ee519FD31BbCE643e8D8138f735E97D1DB",
+    superTokenAddress: "0xdF7B8461a1d9f57f12F88d97FC6131E36d302d81"
   }
 ]
 

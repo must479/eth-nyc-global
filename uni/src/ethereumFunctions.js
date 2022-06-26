@@ -148,41 +148,145 @@ export async function getBalanceAndSymbol(
   }
 }
 
+export default async function createNewFlow(recipient, flowRate) {
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+
+  const chainId = await window.ethereum.request({ method: "eth_chainId" });
+  const superfluid = await Framework.create({
+      chainId: Number(chainId),
+      provider: provider,
+  });
+
+  const DAIxContract = await superfluid.loadSuperToken("fDAIx");
+  const DAIx = DAIxContract.address;
+
+  try {
+    const createFlowOperation = superfluid.cfaV1.createFlow({
+        receiver: recipient,
+        flowRate: flowRate,
+        superToken: DAIx,
+    });
+
+    console.log("Creating your stream...");
+
+    const result = await createFlowOperation.exec(signer);
+    console.log(result);
+    console.log(
+        `Congrats - you've just created a money stream!
+        View Your Stream At: https://app.superfluid.finance/dashboard/${recipient}
+        Network: Kovan
+        Super Token: DAIx
+        Sender: 0xDCB45e4f6762C3D7C61a00e96Fb94ADb7Cf27721
+        Receiver: ${recipient},
+        FlowRate: ${flowRate}
+        `
+    );
+  } catch (error) {
+    console.log(
+        "Hmmm, your transaction threw an error. Make sure that this stream does not already exist, and that you've entered a valid Ethereum address!"
+    );
+    console.error(error);
+  }
+}
+
+async function approve(provider, address, recipient, approveAmount) {
+  const signer = getSigner(provider);
+
+  const token = new ethers.Contract(
+    address,
+    ERC20.abi,
+    signer
+  );
+
+  console.log(token);
+  try {
+    console.log("approving token spend");
+    await token.approve(
+      recipient,
+      ethers.utils.parseEther(approveAmount.toString())
+    ).then(function (tx) {
+      console.log(
+        `Congrats, you just approved your token spend. You can see this tx at https://rinkeby.etherscan.io/tx/${tx.hash}`
+      );
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export async function streamTokens(
   address1,
   address2,
+  superTokenAddress1,
+  superTokenAddress2,
   amount,
   sf,
   longTermSwapContract,
   flowRate,
   accountAddress,
-  signer
+  provider
 ) {
 
   console.log('addresses');
   console.log(address1);
   console.log(address2);
-  // load the usdcx SuperToken via the Framework (using the token address)
-  const token1x = await sf.loadSuperToken(address1);
 
-  console.log('wrapped token: ', token1x);
+  const pro = await getProvider();
+  // load the usdcx SuperToken via the Framework (using the token address)
+  const token1x = await sf.loadSuperToken(superTokenAddress1);
+
+
   // OR
   // load the daix SuperToken via the Framework (using the token symbol)
   //const token2x = await sf.loadSuperToken(address2);
 
   console.log('accountAddress: ', accountAddress);
   console.log('longTermSwapContract: ', longTermSwapContract.address);
+  console.log('wrapped token address: ', token1x.address);
+  console.log('flowrate: ', flowRate);
 
+  var balance1 = await token1x.balanceOf({
+    account: accountAddress,
+    timestamp: Date.now(),
+    providerOrSigner: pro
+  });
+
+  console.log('balance1: ', balance1);
+
+  const signer = await getSigner(provider);
+
+  await approve(pro, address1, token1x.address, amount);
+  console.log('here');
+  const upgradeOperation = await token1x.upgrade({ amount: ethers.utils.parseEther(amount.toString()) });
+  const upgradeTxn = await upgradeOperation.exec(signer);
+  await upgradeTxn.wait();
+  console.log(upgradeTxn);
+
+  var balance2 = await token1x.balanceOf({
+    account: accountAddress,
+    timestamp: Date.now(),
+    providerOrSigner: pro
+  });
+
+  console.log('balance2: ', balance2);
     // Write operations
-  const createFlowOperation = await sf.cfaV1.createFlow({
+  var createFlowOperation = sf.cfaV1.createFlow({
     sender: accountAddress,
-    receiver: longTermSwapContract.address,
+    //receiver: longTermSwapContract.address,
+    receiver: '0x8fEb6AD42CDd39081803bbD9b058d65807aC1362',
     superToken: token1x.address,
     flowRate: flowRate
   });
 
+  console.log('createFlowOperation: ', createFlowOperation);
+
   console.log('success');
-  const txnResponse = await createFlowOperation.exec(signer);
+
+  const sfSigner = sf.createSigner({ web3Provider: pro });
+  console.log('signer: ', sfSigner);
+
+  const txnResponse = await createFlowOperation.exec(sfSigner);
   const txnReceipt = await txnResponse.wait();
   console.log(txnReceipt);
 }

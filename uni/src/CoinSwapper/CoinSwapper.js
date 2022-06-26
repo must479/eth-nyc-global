@@ -271,14 +271,16 @@ function CoinSwapper(props) {
     console.log('coin2: ', coin2);
 
     streamTokens(
+      coin1.address,
+      coin2.address,
       coin1.superTokenAddress,
       coin2.superTokenAddress,
       field1Value,
       props.network.sf,
       props.network.longTermRouter,
-      '10000',
+      '100',
       props.network.account,
-      props.network.signer
+      props.network.provider
     )
       .then(() => {
         setLoading(false);
