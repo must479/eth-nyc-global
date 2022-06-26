@@ -52,7 +52,7 @@ async function main() {
   var superTokenOutAddresses = {
     'polygon': '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063', // DAI
     'optimism': '0x7d342726b69c28d942ad8bfe6ac81b972349d524', // DAIx
-    'rinkeby': '0xdb6ad3aff4c31b32327fecb110f30daf4c378b11' // DAIx
+    'rinkeby': '0x30087b3d21775080d0b68073a658e0d43a5d966d' // USDTx
   }
 
   var tokenOutAddresses = {
@@ -84,7 +84,7 @@ async function main() {
     superTokenOutAddresses[network],
     uniRouterAddresses[network],
     oneInchRouterAddresses[network],
-    1000
+    100
   );
 
   console.log("StreamSwapDistribute address:", streamSwapDistribute.address);

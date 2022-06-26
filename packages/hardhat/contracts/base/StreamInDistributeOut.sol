@@ -107,7 +107,7 @@ abstract contract StreamInDistributeOut is SuperAppBase {
 
     /// @dev DO NOT override this function, override `_beforeDistribution` instead.
     function executeAction() public {
-        if (!_shouldDistributeHax()) return;
+        //if (!_shouldDistributeHax()) return;
         uint256 distributionAmount = _beforeDistribution();
 
         _idaLib.distribute(_outToken, INDEX_ID, distributionAmount);
@@ -124,7 +124,7 @@ abstract contract StreamInDistributeOut is SuperAppBase {
         public
         returns (bytes memory newCtx)
     {
-        if (!_shouldDistributeHax()) return ctx;
+        //if (!_shouldDistributeHax()) return ctx;
 
         uint256 distributionAmount = _beforeDistribution();
 
