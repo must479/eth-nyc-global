@@ -10,6 +10,7 @@ const ERC20 = require("./build/ERC20.json");
 const FACTORY = require("./build/IUniswapV2Factory.json");
 const PAIR = require("./build/IUniswapV2Pair.json");
 
+
 export async function getProvider() {
   // return new ethers.providers.Web3Provider(window.ethereum);
   const provider = new WalletConnectProvider({
@@ -36,7 +37,7 @@ export async function getSf(chainId) {
   const provider = await getProvider();
   const sf = await Framework.create({
     chainId: chainId,
-    provider,
+    provider
   });
   return sf;
 }
@@ -83,16 +84,13 @@ export function doesTokenExist(address, signer) {
 }
 
 export async function getDecimals(token) {
-  const decimals = await token
-    .decimals()
-    .then((result) => {
+  const decimals = await token.decimals().then((result) => {
       return result;
-    })
-    .catch((error) => {
-      console.log("No tokenDecimals function for this token, set to 0");
+    }).catch((error) => {
+      console.log('No tokenDecimals function for this token, set to 0');
       return 0;
     });
-  return decimals;
+    return decimals;
 }
 
 // This function returns an object with 2 fields: `balance` which container's the account's balance in the particular token,
@@ -126,14 +124,14 @@ export async function getBalanceAndSymbol(
       superTokenAddress = "0x9a1b7aa93991f31fe45f6ac02e6bb0034b5f542d";
     }
 
-    console.log("symbol: ", symbol);
-    console.log("superTokenAddress: ", superTokenAddress);
+    console.log('symbol: ', symbol);
+    console.log('superTokenAddress: ', superTokenAddress);
 
     return {
       balance: balanceRaw * 10 ** -tokenDecimals,
       symbol: symbol,
-      superTokenAddress: superTokenAddress,
-    };
+      superTokenAddress: superTokenAddress
+    }
   } catch (error) {
     console.log("The getBalanceAndSymbol function had an error!");
     console.log(error);
@@ -147,8 +145,8 @@ export default async function createNewFlow(recipient, flowRate) {
 
   const chainId = await window.ethereum.request({ method: "eth_chainId" });
   const superfluid = await Framework.create({
-    chainId: Number(chainId),
-    provider: provider,
+      chainId: Number(chainId),
+      provider: provider,
   });
 
   const DAIxContract = await superfluid.loadSuperToken("fDAIx");
@@ -156,9 +154,9 @@ export default async function createNewFlow(recipient, flowRate) {
 
   try {
     const createFlowOperation = superfluid.cfaV1.createFlow({
-      receiver: recipient,
-      flowRate: flowRate,
-      superToken: DAIx,
+        receiver: recipient,
+        flowRate: flowRate,
+        superToken: DAIx,
     });
 
     console.log("Creating your stream...");
@@ -166,7 +164,7 @@ export default async function createNewFlow(recipient, flowRate) {
     const result = await createFlowOperation.exec(signer);
     console.log(result);
     console.log(
-      `Congrats - you've just created a money stream!
+        `Congrats - you've just created a money stream!
         View Your Stream At: https://app.superfluid.finance/dashboard/${recipient}
         Network: Kovan
         Super Token: DAIx
@@ -177,7 +175,7 @@ export default async function createNewFlow(recipient, flowRate) {
     );
   } catch (error) {
     console.log(
-      "Hmmm, your transaction threw an error. Make sure that this stream does not already exist, and that you've entered a valid Ethereum address!"
+        "Hmmm, your transaction threw an error. Make sure that this stream does not already exist, and that you've entered a valid Ethereum address!"
     );
     console.error(error);
   }
@@ -186,18 +184,23 @@ export default async function createNewFlow(recipient, flowRate) {
 async function approve(provider, address, recipient, approveAmount) {
   const signer = getSigner(provider);
 
-  const token = new ethers.Contract(address, ERC20.abi, signer);
+  const token = new ethers.Contract(
+    address,
+    ERC20.abi,
+    signer
+  );
 
   console.log(token);
   try {
     console.log("approving token spend");
-    await token
-      .approve(recipient, ethers.utils.parseEther(approveAmount.toString()))
-      .then(function (tx) {
-        console.log(
-          `Congrats, you just approved your token spend. You can see this tx at https://rinkeby.etherscan.io/tx/${tx.hash}`
-        );
-      });
+    await token.approve(
+      recipient,
+      ethers.utils.parseEther(approveAmount.toString())
+    ).then(function (tx) {
+      console.log(
+        `Congrats, you just approved your token spend. You can see this tx at https://rinkeby.etherscan.io/tx/${tx.hash}`
+      );
+    });
   } catch (error) {
     console.error(error);
   }
@@ -214,10 +217,11 @@ export async function streamTokens(
   flowRate,
   accountAddress,
   provider,
-  frequency,
-  horizon
+  freq,
+  hor
 ) {
-  console.log("addresses");
+
+  console.log('addresses');
   console.log(address1);
   console.log(address2);
 
@@ -225,30 +229,29 @@ export async function streamTokens(
   // load the usdcx SuperToken via the Framework (using the token address)
   const token1x = await sf.loadSuperToken(superTokenAddress1);
 
+
   // OR
   // load the daix SuperToken via the Framework (using the token symbol)
   //const token2x = await sf.loadSuperToken(address2);
 
-  console.log("accountAddress: ", accountAddress);
-  console.log("longTermSwapContract: ", longTermSwapContract.address);
-  console.log("wrapped token address: ", token1x.address);
-  console.log("flowrate: ", flowRate);
+  console.log('accountAddress: ', accountAddress);
+  console.log('longTermSwapContract: ', longTermSwapContract.address);
+  console.log('wrapped token address: ', token1x.address);
+  console.log('flowrate: ', flowRate);
 
   var balance1 = await token1x.balanceOf({
     account: accountAddress,
     timestamp: Date.now(),
-    providerOrSigner: pro,
+    providerOrSigner: pro
   });
 
-  console.log("balance1: ", balance1);
+  console.log('balance1: ', balance1);
 
   const signer = await getSigner(provider);
 
   await approve(pro, address1, token1x.address, amount);
-  console.log("here");
-  const upgradeOperation = await token1x.upgrade({
-    amount: ethers.utils.parseEther(amount.toString()),
-  });
+  console.log('here');
+  const upgradeOperation = await token1x.upgrade({ amount: ethers.utils.parseEther(amount.toString()) });
   const upgradeTxn = await upgradeOperation.exec(signer);
   await upgradeTxn.wait();
   console.log(upgradeTxn);
@@ -256,25 +259,25 @@ export async function streamTokens(
   var balance2 = await token1x.balanceOf({
     account: accountAddress,
     timestamp: Date.now(),
-    providerOrSigner: pro,
+    providerOrSigner: pro
   });
 
-  console.log("balance2: ", balance2);
-  // Write operations
+  console.log('balance2: ', balance2);
+    // Write operations
   var createFlowOperation = sf.cfaV1.createFlow({
     sender: accountAddress,
     //receiver: longTermSwapContract.address,
-    receiver: "0x8fEb6AD42CDd39081803bbD9b058d65807aC1362",
+    receiver: '0x8fEb6AD42CDd39081803bbD9b058d65807aC1362',
     superToken: token1x.address,
-    flowRate: flowRate,
+    flowRate: flowRate
   });
 
-  console.log("createFlowOperation: ", createFlowOperation);
+  console.log('createFlowOperation: ', createFlowOperation);
 
-  console.log("success");
+  console.log('success');
 
   const sfSigner = sf.createSigner({ web3Provider: pro });
-  console.log("signer: ", sfSigner);
+  console.log('signer: ', sfSigner);
 
   const txnResponse = await createFlowOperation.exec(sfSigner);
   const txnReceipt = await txnResponse.wait();
@@ -391,7 +394,7 @@ export async function fetchReserves(address1, address2, pair, signer) {
     // Get reserves
     const reservesRaw = await pair.getReserves();
 
-    console.log("reservesRaw: ", reservesRaw);
+    console.log('reservesRaw: ', reservesRaw);
 
     // Put the results in the right order
     const results = [
@@ -426,7 +429,7 @@ export async function getReserves(
 ) {
   try {
     const pairAddress = await factory.getPair(address1, address2);
-    console.log("pairAddress: ", pairAddress);
+    console.log('pairAddress: ', pairAddress);
     const pair = new Contract(pairAddress, PAIR.abi, signer);
 
     if (pairAddress !== "0x0000000000000000000000000000000000000000") {
