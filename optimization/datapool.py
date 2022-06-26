@@ -2,8 +2,10 @@ import requests
 import fire
 import pandas as pd
 import datetime
+import json
 
-API_KEY = "ckey_1f70df9e2a0c4f349ee639fd714"
+
+API_KEY = "ckey_07af549b1c19432f8018bf305e7"
 PAIRS_POOL = {
     "DAI_USDC": "0xae461ca67b15dc8dc81ce7615e0320da1a9ab8d5",
     "USDC_WETH": "0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc",
@@ -11,7 +13,6 @@ PAIRS_POOL = {
     "DAI_WETH": "0xa478c2975ab1ea89e8196811f51a7b7ade33eb11",
     "USDC_USDT": "0x3041cbd36888becc7bbcbc0045e3b1f144466f5f"
 }
-log_data = 0
 
 
 LOG_HASH_DAI_USDC = "0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840159d822"
@@ -20,6 +21,7 @@ LOG_HASH_DAI_WETH = "0xd78ad95fa46c994b6551d0da85fc275fe613ce37657fb8d5e3d130840
 
 
 def block_height(num_days=7):
+    print('block heigh')
     base = datetime.datetime.today() + datetime.timedelta(days=1)
 
     clean_data = {}
@@ -43,29 +45,53 @@ def block_height(num_days=7):
     return clean_data
 
 
-def get_txs(selected_pool="DAI_USDC", num_days=7, log_data=LOG_HASH_DAI_USDC):
+def get_txs(selected_pool="WETH_USDT", num_days=30, log_data=LOG_HASH_DAI_USDC):
+    # print('get txn')
+
     block_data = block_height(num_days)
     tx_data = {}
-    for item in block_data:
+    for item1 in block_data:
 
-        val = block_data[item]
-        url = "https://api.covalenthq.com/v1/1/events/topics/" + log_data + "/?quote-currency=USD&format=JSON&starting-block=" + \
+        # print('hiiii')
+        val = block_data[item1]
+        url = "https://api.covalenthq.com/v1/1/events/topics/" + LOG_HASH_DAI_USDC + "/?quote-currency=USD&format=JSON&starting-block=" + \
             str(val["min_block"]) + "&ending-block=" + str(val["max_block"]) + \
             "&sender-address=" + PAIRS_POOL[selected_pool] + "&key=" + API_KEY
+        # print('444')
         response = requests.get(url)
+        # print('555')
+
         data = response.json()
+        # print('data111')
         if len(data["data"]["items"]) != 0:
-            for item in data["data"]["items"]:
-                tx_data[item["tx_hash"]] = {'block_signed_at': item["block_signed_at"], 'start': val["start"],
-                                            'end': val["end"]}
+            # print('insideeee')
+            for j in range(len(data["data"]["items"])):
+                item2 = data["data"]["items"][j]
+                print('item22222')
+                tx_data[item2["tx_hash"]] = {'block_signed_at': item2["block_signed_at"], 'start': val["start"],
+                                             'end': val["end"]}
+    out_file = open("myfile30.json", "w")
+
+    json.dump(tx_data, out_file, indent=6)
+
+    out_file.close()
 
     return tx_data
 
 
-def get_gas(selected_pool="DAI_USDC", num_days=7, log_data=LOG_HASH_DAI_USDC):
-    tx_data = get_txs(selected_pool, num_days, log_data)
+def get_gas(selected_pool="WETH_USDT", num_days=7, log_data=LOG_HASH_DAI_USDC):
+    print('get gas')
+    # tx_data = get_txs(selected_pool, num_days, log_data)
+
+    f = open('myfile.json')
+
+    # returns JSON object as
+    # a dictionary
+    tx_data = json.load(f)
+
     day_data = {}
     for item in tx_data:
+        print(item)
         url = "https://api.covalenthq.com/v1/1/transaction_v2/" + item + \
             "/?quote-currency=USD&format=JSON&no-logs=false&key="+API_KEY
         response = requests.get(url)
@@ -93,15 +119,11 @@ def get_gas(selected_pool="DAI_USDC", num_days=7, log_data=LOG_HASH_DAI_USDC):
     return day_data
 
 
-def get_data(field="price_timeseries_7d", selected_pool="DAI_WETH"):
+def get_data(field="price_timeseries_7d", selected_pool="WETH_USDT"):
+    print('get data')
     """
     Get data from url
     """
-
-    if selected_pool == "DAI_WETH":
-        log_data = LOG_HASH_DAI_WETH
-    elif selected_pool == "DAI_USDC":
-        log_data = LOG_HASH_DAI_USDC
 
     url = "https://api.covalenthq.com/v1/1/xy=k/uniswap_v2/pools/address/" + \
         PAIRS_POOL[selected_pool] + \
@@ -141,7 +163,8 @@ def get_data(field="price_timeseries_7d", selected_pool="DAI_WETH"):
                                                     "token_1": item["token1_quote_rate"],
                                                     "gas": None}
 
-    gas_data = get_gas(selected_pool, num_days=num_days, log_data=log_data)
+    gas_data = get_gas(selected_pool, num_days=num_days,
+                       log_data=LOG_HASH_DAI_WETH)
 
     for item in gas_data:
         if item in list_aquiared:
@@ -156,8 +179,8 @@ def get_data(field="price_timeseries_7d", selected_pool="DAI_WETH"):
         end_price = None
         if list_aquiared[item]["gas"]:
             gas = list_aquiared[item]["gas"]/1000000000
-            if list_aquiared[item]["token_1"]:
-                end_price = gas*list_aquiared[item]["token_1"]/1000000000
+            if list_aquiared[item]["token_0"]:
+                end_price = gas*list_aquiared[item]["token_0"]/1000000000
         list_format.append(
             [item, list_aquiared[item]["token_0"], list_aquiared[item]["token_1"], gas, end_price])
 
