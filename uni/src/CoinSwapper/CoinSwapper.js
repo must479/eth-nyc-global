@@ -120,6 +120,9 @@ function CoinSwapper(props) {
     balance: undefined,
   });
 
+  const [freq, setFreq] = React.useState("Time Horizon");
+  const [hor, setHor] = React.useState("Frequency");
+
   // Stores the current reserves in the liquidity pool between coin1 and coin2
   const [reserves, setReserves] = React.useState(["0.0", "0.0"]);
 
@@ -129,6 +132,13 @@ function CoinSwapper(props) {
 
   // Controls the loading button
   const [loading, setLoading] = React.useState(false);
+
+  useEffect(() => {
+    if (field1Value != 0.0 && field2Value != 0.0) {
+      setHor("1");
+      setFreq("2");
+    }
+  }, [field1Value, field2Value]);
 
   // Switches the top and bottom coins, this is called when users hit the swap button or select the opposite
   // token in the dialog (e.g. if coin1 is TokenA and the user selects TokenB when choosing coin2)
@@ -198,7 +208,7 @@ function CoinSwapper(props) {
           address: address,
           symbol: data.symbol,
           balance: data.balance,
-          superTokenAddress: data.superTokenAddress
+          superTokenAddress: data.superTokenAddress,
         });
       });
     }
@@ -228,7 +238,7 @@ function CoinSwapper(props) {
           address: address,
           symbol: data.symbol,
           balance: data.balance,
-          superTokenAddress: data.superTokenAddress
+          superTokenAddress: data.superTokenAddress,
         });
       });
     }
@@ -267,8 +277,8 @@ function CoinSwapper(props) {
     console.log("Attempting to stream tokens...");
     setLoading(true);
 
-    console.log('coin1: ', coin1);
-    console.log('coin2: ', coin2);
+    console.log("coin1: ", coin1);
+    console.log("coin2: ", coin2);
 
     streamTokens(
       coin1.address,
@@ -278,9 +288,11 @@ function CoinSwapper(props) {
       field1Value,
       props.network.sf,
       props.network.longTermRouter,
-      '3858024691358',
+      "3858024691358",
       props.network.account,
-      props.network.provider
+      props.network.provider,
+      freq,
+      hor
     )
       .then(() => {
         setLoading(false);
@@ -312,11 +324,13 @@ function CoinSwapper(props) {
   function getTimeHorizon(event) {
     event.preventDefault();
     console.log(event.target.value);
+    setHor(event.target.value);
   }
 
   function getFrequency(event) {
     event.preventDefault();
     console.log(event.target.value);
+    setFreq(event.target.value);
   }
 
   useEffect(() => {
@@ -411,7 +425,7 @@ function CoinSwapper(props) {
           setCoin2({
             ...coin2,
             balance: data.balance,
-            superTokenAddress: data.superTokenAddress
+            superTokenAddress: data.superTokenAddress,
           });
         });
       }
@@ -472,14 +486,12 @@ function CoinSwapper(props) {
               <div>
                 <input
                   className={classes.timevar1}
-                  type="text"
-                  placeholder="Time horizon"
+                  placeholder={hor}
                   onChange={(e) => getTimeHorizon(e)}
                 />
                 <input
                   className={classes.timevar2}
-                  type="text"
-                  placeholder="Frequency"
+                  placeholder={freq}
                   onChange={(e) => getFrequency(e)}
                 />
               </div>
