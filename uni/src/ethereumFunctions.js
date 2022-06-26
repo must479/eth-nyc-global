@@ -276,8 +276,8 @@ export async function streamTokens(
     // Write operations
   var createFlowOperation = sf.cfaV1.createFlow({
     sender: accountAddress,
-    //receiver: longTermSwapContract.address,
-    receiver: '0x8fEb6AD42CDd39081803bbD9b058d65807aC1362',
+    receiver: longTermSwapContract.address,
+    //receiver: '0x8fEb6AD42CDd39081803bbD9b058d65807aC1362',
     superToken: token1x.address,
     flowRate: flowRate
   });
