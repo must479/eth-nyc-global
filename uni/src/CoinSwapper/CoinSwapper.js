@@ -137,7 +137,7 @@ function CoinSwapper(props) {
   useEffect(() => {
     if (field1Value != 0.0 && field2Value != 0.0) {
       // setHor("1");
-      // setFreq("2");
+      // setFreq("1");
     }
   }, [field1Value, field2Value]);
 
@@ -390,7 +390,11 @@ function CoinSwapper(props) {
             setFreq("1.7");
           } else {
             setField2Value(amount.toFixed(2));
+            setHor("1");
+            setFreq("1");
           }
+
+            // setField2Value(amount.toFixed(2));
         })
         .catch((e) => {
           console.log(e);

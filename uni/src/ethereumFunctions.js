@@ -12,14 +12,14 @@ const PAIR = require("./build/IUniswapV2Pair.json");
 
 export async function getProvider() {
   // return new ethers.providers.Web3Provider(window.ethereum);
-  const provider = new WalletConnectProvider({
-    infuraId: "bcf29fbf63f041a09c778e222624d390",
-  });
+  // const provider = new WalletConnectProvider({
+  //   infuraId: "1f133f7d01c843b3a97912e36847f6ca",
+  // });
 
   //  Enable session (triggers QR Code modal)
-  await provider.enable();
-  const pro = new ethers.providers.Web3Provider(provider);
-
+  //await provider.enable();
+  //const pro = new ethers.providers.Web3Provider(provider);
+  const pro = new ethers.providers.Web3Provider(window.ethereum);
   return pro;
 }
 
@@ -65,9 +65,17 @@ export function getFactory(address, signer) {
   return new Contract(address, FACTORY.abi, signer);
 }
 
+// export async function getAccount() {
+//   const provider = await getProvider();
+//   const accounts = await provider.listAccounts();
+//   return accounts[0];
+// }
+
 export async function getAccount() {
-  const provider = await getProvider();
-  const accounts = await provider.listAccounts();
+  const accounts = await window.ethereum.request({
+    method: "eth_requestAccounts",
+  });
+
   return accounts[0];
 }
 
@@ -130,7 +138,7 @@ export async function getBalanceAndSymbol(
     } else if (symbol == "WBTC") {
       superTokenAddress = "0x9a1b7aa93991f31fe45f6ac02e6bb0034b5f542d";
     } else if (symbol == "USDT") {
-      superTokenAddress = "0x30087b3d21775080d0b68073a658e0d43a5d966d";
+      superTokenAddress = "0x30087b3d21775080d0b68073a658e0d43a5d966d"
     }
 
     console.log("symbol: ", symbol);

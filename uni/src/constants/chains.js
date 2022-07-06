@@ -24,6 +24,6 @@ routerAddress.set(ChainId.PARASTATE, "0x07a1905D44feeA439ceFAabd11a63bEf684abE11
 routerAddress.set(ChainId.GANCHE, "0x0F44AC51198D8F99847db6C431448dBC673428f1");
 
 export const longTermSwapAddress = new Map();
-longTermSwapAddress.set(ChainId.MAINNET, "0x430F1d9F896d500c9fbB107FEb6Df91bEd78c713");
-longTermSwapAddress.set(ChainId.ROPSTEN, "0x430F1d9F896d500c9fbB107FEb6Df91bEd78c713");
-longTermSwapAddress.set(ChainId.RINKEBY, "0x430F1d9F896d500c9fbB107FEb6Df91bEd78c713");
+longTermSwapAddress.set(ChainId.MAINNET, "0x8fEb6AD42CDd39081803bbD9b058d65807aC1362");
+longTermSwapAddress.set(ChainId.ROPSTEN, "0x8fEb6AD42CDd39081803bbD9b058d65807aC1362");
+longTermSwapAddress.set(ChainId.RINKEBY, "0x8fEb6AD42CDd39081803bbD9b058d65807aC1362");
